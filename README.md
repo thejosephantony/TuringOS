@@ -1,92 +1,144 @@
 # 🧠 TuringOS
 
-**TuringOS** é um sistema operacional educacional inspirado em Unix, desenvolvido com o objetivo de estudar, na prática, conceitos fundamentais de Sistemas Operacionais, Arquitetura de Computadores, Interface Hardware-Software, C e Assembly.
+> Um mini sistema operacional educacional inspirado em Unix, criado para estudar a interface entre hardware e software, boot, kernel, C, Assembly, drivers básicos, depuração e organização de projeto.
 
-O projeto não tem como objetivo criar um sistema operacional completo como Linux, BSD ou Minix, mas sim construir um **mini kernel educacional**, capaz de inicializar em uma máquina virtual, escrever diretamente na tela, interagir com dispositivos básicos, executar comandos simples e demonstrar conceitos internos de um sistema operacional.
+## 📌 Visão geral
+
+**TuringOS** é um sistema operacional educacional inspirado em Unix. O objetivo do projeto não é criar um sistema operacional completo como Linux, BSD, Minix ou xv6, mas construir um **mini kernel didático**, capaz de inicializar em uma máquina virtual, escrever diretamente na tela, interagir com dispositivos básicos e executar comandos simples em uma interface textual.
+
+O projeto é voltado ao estudo prático de conceitos de:
+
+- Sistemas Operacionais;
+- Arquitetura de Computadores;
+- Interface Hardware/Software;
+- Programação em C;
+- Assembly x86;
+- geração de código de máquina e binários;
+- drivers básicos;
+- depuração com QEMU/GDB;
+- engenharia reversa de binários;
+- organização de desenvolvimento com Git e Kanban.
 
 ---
 
-## 📌 Objetivo do Projeto
+## 🎯 Objetivo do projeto
 
-O objetivo principal do TuringOS é compreender como um sistema operacional funciona internamente, desde o processo de boot até a criação de uma interface textual básica.
+O objetivo principal do TuringOS é compreender como um sistema operacional funciona internamente, desde o processo de boot até a construção de uma interface textual simples.
 
-Durante o desenvolvimento, serão estudados conceitos como:
+Durante o desenvolvimento, serão estudados e implementados conceitos como:
 
 - boot do sistema;
-- kernel;
-- código de montagem em Assembly;
+- carregamento do kernel pelo GRUB;
+- código de entrada em Assembly;
+- kernel em C;
+- linkedição com linker script próprio;
 - geração de binário executável;
-- escrita direta na memória de vídeo;
-- interface direta com hardware virtualizado;
-- drivers básicos;
+- geração de imagem ISO inicializável;
+- escrita direta na memória de vídeo VGA;
+- comunicação com hardware virtualizado;
+- portas de entrada e saída;
+- teclado PS/2;
+- timer/PIT;
 - interrupções;
-- teclado;
-- timer;
-- gerenciamento básico de memória;
-- terminal;
-- shell;
+- terminal textual;
+- shell simples;
 - comandos internos;
+- gerenciamento básico de memória;
 - sistema de arquivos em memória;
-- chamadas de sistema conceituais;
-- depuração com QEMU/GDB;
+- chamadas internas conceituais;
+- depuração com QEMU, GDB, serial e `objdump`;
+- engenharia reversa de binários sem acesso ao código-fonte;
 - versionamento com Git;
-- organização semanal com Kanban.
+- planejamento semanal com Kanban.
 
 ---
 
-## 🧩 Ideia Geral
+## 🧩 Ideia geral da arquitetura
 
-A arquitetura inicial do TuringOS será baseada em um kernel simples carregado pelo GRUB e executado no QEMU.
+A arquitetura inicial do TuringOS será baseada em um kernel simples, carregado pelo GRUB e executado no QEMU.
 
 ```text
 +-----------------------------+
-|           Shell             |
+|            Shell            |
 | help, clear, echo, about    |
 +-----------------------------+
-|       Chamadas internas     |
-| print, read, clear, etc.    |
+|   Chamadas internas          |
+| print, read, clear, ticks   |
 +-----------------------------+
-|           Kernel            |
-| memória, terminal, drivers  |
+|            Kernel           |
+| terminal, memória, drivers  |
 +-----------------------------+
-|      Drivers básicos        |
-| vídeo, teclado, timer       |
+|       Drivers básicos       |
+| VGA, teclado, timer, serial |
 +-----------------------------+
-|        Hardware/QEMU        |
+|         Hardware/QEMU       |
 +-----------------------------+
 ```
 
 O sistema será executado em uma plataforma virtualizada, permitindo testar o kernel sem instalar nada diretamente no computador físico.
 
+Fluxo inicial esperado:
+
+```text
+BIOS/QEMU
+   ↓
+GRUB
+   ↓
+boot/boot.asm
+   ↓
+kernel_main()
+   ↓
+Terminal/Shell
+```
+
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## ✅ Aderência aos requisitos obrigatórios da disciplina
+
+Esta seção mostra como o TuringOS atende aos requisitos obrigatórios da disciplina de Interface Hardware/Software.
+
+| Requisito obrigatório | Como o TuringOS atende |
+|---|---|
+| Interface direta com o hardware | Escrita direta na memória VGA, acesso a portas de I/O, teclado PS/2, timer/PIT e serial |
+| Código de montagem Assembly | Arquivo de entrada `boot/boot.asm`, cabeçalho Multiboot, configuração inicial da pilha e chamada ao kernel em C |
+| Geração de código de máquina/binário | Compilação de C e Assembly para objetos, linkedição com `linker.ld`, geração de `turingos.bin` e ISO inicializável |
+| Gerenciamento de dispositivo não suportado diretamente | Implementação própria de drivers básicos para VGA, teclado, timer e serial no ambiente virtualizado |
+| Engenharia reversa de sistema sem código-fonte | Análise documentada de um binário de boot/kernel usando `objdump`, `ndisasm`, `hexdump`, `readelf` e GDB |
+| Depuração/prototipação virtual da plataforma | Execução no QEMU, depuração com GDB, saída serial, análise de registradores e inspeção do binário |
+| Planejamento semanal com Kanban | Organização das atividades em GitHub Projects ou quadro Kanban equivalente |
+| Versionamento com Git | Uso de branches, commits semânticos, tags e histórico de evolução no GitHub |
+
+---
+
+## 🛠️ Tecnologias utilizadas
 
 O projeto será desenvolvido usando:
 
-- **C** — para a maior parte do kernel;
-- **Assembly x86** — para entrada inicial e rotinas de baixo nível;
-- **Makefile** — para automatizar a compilação;
-- **LD** — para linkedição do kernel;
-- **GRUB** — para carregar o kernel;
-- **QEMU** — para executar o sistema operacional em máquina virtual;
-- **GDB** — para depuração;
-- **Git/GitHub** — para versionamento do código-fonte;
-- **GitHub Projects/Kanban** — para planejamento semanal das atividades;
-- **WSL2 Ubuntu** ou Linux nativo — ambiente de desenvolvimento recomendado.
+- **C**: implementação da maior parte do kernel;
+- **Assembly x86**: entrada inicial, rotinas de baixo nível e interação direta com a CPU;
+- **NASM**: montagem do código Assembly;
+- **GCC**: compilação do código C em modo freestanding;
+- **LD**: linkedição do kernel com linker script próprio;
+- **GRUB**: carregamento do kernel via padrão Multiboot;
+- **QEMU**: execução do sistema em máquina virtual;
+- **GDB**: depuração do kernel;
+- **Makefile**: automação da compilação, execução e limpeza;
+- **Xorriso**: geração da imagem ISO;
+- **Git/GitHub**: versionamento do código-fonte;
+- **GitHub Projects/Kanban**: planejamento semanal das atividades.
 
 ---
 
-## 💻 Ambiente de Desenvolvimento
+## 💻 Ambiente de desenvolvimento
 
-O ambiente recomendado é:
+Ambiente recomendado:
 
 ```text
 Windows 11
 └── WSL2 Ubuntu
     ├── GCC
     ├── Make
-    ├── NASM ou GNU AS
+    ├── NASM
     ├── LD
     ├── GRUB
     ├── Xorriso
@@ -101,6 +153,12 @@ sudo apt update
 sudo apt install build-essential nasm qemu-system-x86 grub-pc-bin xorriso make gdb
 ```
 
+Opcionalmente, para facilitar compilação 32-bit no Linux:
+
+```bash
+sudo apt install gcc-multilib binutils
+```
+
 Verificação das ferramentas:
 
 ```bash
@@ -110,18 +168,20 @@ nasm -v
 qemu-system-i386 --version
 grub-mkrescue --version
 gdb --version
+ld --version
+objdump --version
 ```
 
 ---
 
-## 📁 Estrutura Inicial do Projeto
+## 📁 Estrutura inicial do projeto
 
-Estrutura sugerida para o TuringOS:
+Estrutura sugerida:
 
 ```text
 turing-os/
 ├── boot/
-│   └── boot.s
+│   └── boot.asm
 ├── kernel/
 │   ├── kernel.c
 │   ├── terminal.c
@@ -130,6 +190,7 @@ turing-os/
 │   ├── timer.c
 │   ├── memory.c
 │   ├── ramfs.c
+│   ├── serial.c
 │   └── shell.c
 ├── include/
 │   ├── terminal.h
@@ -138,6 +199,7 @@ turing-os/
 │   ├── timer.h
 │   ├── memory.h
 │   ├── ramfs.h
+│   ├── serial.h
 │   └── shell.h
 ├── iso/
 │   └── boot/
@@ -146,8 +208,9 @@ turing-os/
 ├── docs/
 │   ├── images/
 │   ├── reverse-engineering.md
-│   ├── kanban.md
-│   └── debugging.md
+│   ├── debugging.md
+│   └── kanban.md
+├── build/
 ├── linker.ld
 ├── Makefile
 ├── LICENSE
@@ -156,525 +219,146 @@ turing-os/
 
 ---
 
-# ✅ Aderência aos Requisitos Obrigatórios da Disciplina
+## 🚀 Como compilar e executar
 
-Esta seção descreve como o projeto TuringOS atende aos requisitos obrigatórios definidos para o trabalho.
+Depois que o `Makefile` estiver pronto, o projeto poderá ser compilado com:
 
----
-
-## 1. Interface direta com o hardware
-
-O TuringOS realiza interface direta com componentes de hardware virtualizados pela plataforma QEMU.
-
-O projeto não utiliza chamadas de alto nível de um sistema operacional já existente para executar suas funcionalidades internas. Em vez disso, o próprio kernel acessa diretamente recursos de baixo nível, como:
-
-- memória de vídeo em modo texto VGA;
-- portas de entrada e saída;
-- teclado PS/2;
-- timer do sistema;
-- interrupções de hardware;
-- porta serial para depuração.
-
-Um exemplo de acesso direto ao hardware é a escrita na memória de vídeo VGA, localizada no endereço:
-
-```text
-0xB8000
+```bash
+make
 ```
 
-Nesse modelo, cada caractere exibido na tela é escrito diretamente na memória de vídeo, sem o uso de funções como `printf`.
+Para gerar a ISO:
 
----
-
-## 2. Código de montagem Assembly
-
-O projeto utiliza código Assembly para realizar tarefas de baixo nível que não podem ser feitas diretamente em C no início da execução do sistema.
-
-O código Assembly será utilizado principalmente para:
-
-- definir o ponto de entrada do kernel;
-- configurar a pilha inicial;
-- incluir o cabeçalho Multiboot;
-- transferir o controle para o kernel em C;
-- manipular instruções específicas da arquitetura;
-- acessar portas de entrada e saída;
-- configurar rotinas de interrupção.
-
-Arquivo principal relacionado:
-
-```text
-boot/boot.s
+```bash
+make iso
 ```
 
-Fluxo inicial:
-
-```text
-GRUB → boot.s → kernel_main()
-```
-
----
-
-## 3. Geração de código de máquina e binário
-
-O TuringOS gera código de máquina a partir de arquivos escritos em C e Assembly.
-
-O processo de compilação envolve:
-
-1. montagem do código Assembly;
-2. compilação do código C;
-3. geração de arquivos objeto;
-4. linkedição com linker script próprio;
-5. geração do kernel binário;
-6. geração de uma imagem ISO inicializável;
-7. execução no QEMU.
-
-Fluxo geral:
-
-```text
-boot.s       → boot.o
-kernel.c     → kernel.o
-vga.c        → vga.o
-terminal.c   → terminal.o
-             ↓
-          linker.ld
-             ↓
-        turingos.bin
-             ↓
-        turingos.iso
-```
-
-Dessa forma, o projeto demonstra o processo de transformação de código-fonte em código de máquina executável pela plataforma virtualizada.
-
----
-
-## 4. Gerenciamento de dispositivo não suportado diretamente
-
-O TuringOS implementa drivers próprios para dispositivos básicos, em vez de depender de drivers prontos do sistema operacional hospedeiro.
-
-Os dispositivos inicialmente tratados pelo kernel serão:
-
-- tela em modo texto VGA;
-- teclado PS/2;
-- timer/PIT;
-- porta serial para depuração.
-
-Esses dispositivos são acessados diretamente pelo kernel por meio de endereços de memória, portas de entrada/saída e interrupções.
-
-Exemplos de drivers planejados:
-
-```text
-kernel/vga.c
-kernel/keyboard.c
-kernel/timer.c
-kernel/serial.c
-```
-
-Isso demonstra o gerenciamento de dispositivos em uma plataforma onde o sistema operacional desenvolvido ainda não possui suporte nativo pronto.
-
----
-
-## 5. Engenharia reversa de sistemas em código-fonte
-
-Durante o desenvolvimento do TuringOS, serão estudados sistemas operacionais educacionais e materiais de referência com código-fonte aberto.
-
-O objetivo não é copiar diretamente esses sistemas, mas analisar sua estrutura para compreender como kernels reais ou educacionais organizam:
-
-- boot;
-- drivers;
-- interrupções;
-- memória;
-- terminal;
-- chamadas de sistema;
-- organização modular do código.
-
-Projetos e referências que podem ser analisados:
-
-- xv6;
-- Minix;
-- exemplos da OSDev Wiki;
-- JamesM's Kernel Development Tutorials;
-- The Little Book About OS Development;
-- pequenos kernels educacionais open source.
-
-A engenharia reversa será aplicada por meio de:
-
-- leitura orientada do código-fonte;
-- identificação dos módulos principais;
-- comparação com a arquitetura do TuringOS;
-- documentação das decisões de projeto;
-- adaptação conceitual sem cópia direta.
-
-Perguntas que guiarão essa análise:
-
-```text
-Como o xv6 organiza processos?
-Como a OSDev Wiki inicializa a IDT?
-Como kernels educacionais lidam com VGA?
-Como o GRUB transfere controle para o kernel?
-Como um kernel mínimo organiza memória e interrupções?
-```
-
-A documentação dessa etapa ficará em:
-
-```text
-docs/reverse-engineering.md
-```
-
----
-
-## 6. Técnicas de depuração e prototipação virtual da plataforma
-
-O desenvolvimento será realizado em ambiente virtualizado, utilizando o QEMU.
-
-O uso do QEMU permite testar o sistema operacional sem instalá-lo diretamente em uma máquina física, reduzindo riscos e facilitando a depuração.
-
-Ferramentas utilizadas:
-
-- QEMU;
-- GDB;
-- logs no terminal;
-- porta serial virtual;
-- Makefile;
-- testes incrementais;
-- `objdump`.
-
-Exemplo de execução:
+Para executar no QEMU:
 
 ```bash
 make run
 ```
 
-Exemplo de depuração com GDB:
+Para executar em modo de depuração:
 
 ```bash
-qemu-system-i386 -kernel turingos.bin -s -S
-gdb turingos.bin
+make debug
 ```
 
-Técnicas previstas:
-
-- execução incremental;
-- inspeção de registradores;
-- análise de mensagens de erro do QEMU;
-- depuração com breakpoints;
-- uso de saída serial para logs do kernel;
-- testes por módulos;
-- análise do binário gerado com `objdump`.
-
-A documentação dessa etapa ficará em:
-
-```text
-docs/debugging.md
-```
-
----
-
-## 7. Planejamento semanal das atividades com Kanban
-
-O desenvolvimento do projeto será organizado semanalmente usando metodologia Kanban.
-
-O quadro Kanban poderá ser organizado em colunas como:
-
-```text
-A fazer
-Em desenvolvimento
-Em teste
-Concluído
-```
-
-Exemplo de planejamento semanal:
-
-```text
-Semana 1:
-- configurar ambiente;
-- criar estrutura do projeto;
-- compilar kernel mínimo;
-- executar no QEMU.
-
-Semana 2:
-- implementar driver VGA;
-- criar terminal básico;
-- implementar clear e print.
-
-Semana 3:
-- implementar entrada de teclado;
-- criar shell simples;
-- adicionar comandos help, clear e about.
-
-Semana 4:
-- configurar interrupções;
-- implementar timer;
-- adicionar comandos ticks e uptime.
-
-Semana 5:
-- implementar gerenciamento básico de memória;
-- criar RAMFS inicial;
-- adicionar comandos ls e cat.
-
-Semana 6:
-- revisar código;
-- documentar arquitetura;
-- gravar demonstração;
-- preparar apresentação final.
-```
-
-Cada atividade deverá ser registrada como tarefa no quadro Kanban do GitHub Projects ou ferramenta equivalente.
-
-A documentação dessa etapa ficará em:
-
-```text
-docs/kanban.md
-```
-
----
-
-## 8. Versionamento do código-fonte com Git
-
-O código-fonte do TuringOS será versionado em um repositório Git.
-
-O versionamento permitirá acompanhar a evolução do projeto, registrar mudanças importantes e organizar o desenvolvimento por fases.
-
-Estratégia sugerida:
-
-```text
-main        → versão estável
-dev         → desenvolvimento principal
-feature/*   → novas funcionalidades
-```
-
-Exemplos de branches:
-
-```text
-feature/vga-driver
-feature/keyboard-driver
-feature/shell
-feature/timer
-feature/memory
-feature/ramfs
-```
-
-Exemplos de commits:
-
-```text
-feat: add multiboot header
-feat: implement VGA text output
-feat: add terminal clear function
-feat: create basic shell prompt
-fix: correct cursor position on new line
-docs: update project roadmap
-```
-
-Também poderão ser usadas tags para marcar versões:
-
-```text
-v0.1 - boot e kernel mínimo
-v0.2 - terminal básico
-v0.3 - shell inicial
-v0.4 - interrupções e timer
-v0.5 - memória e RAMFS
-v1.0 - versão final da apresentação
-```
-
----
-
-## 📌 Resumo de Atendimento aos Requisitos
-
-| Requisito obrigatório | Atendimento no TuringOS |
-|---|---|
-| Interface direta com o hardware | Escrita VGA, teclado, timer, portas de I/O |
-| Código Assembly | Boot inicial, entrada do kernel, rotinas de baixo nível |
-| Geração de código de máquina/binário | Compilação C/Assembly, linkedição e ISO |
-| Gerenciamento de dispositivo não suportado | Drivers próprios para VGA, teclado, timer e serial |
-| Engenharia reversa de sistema em código-fonte | Estudo documentado de xv6, Minix, OSDev e kernels educacionais |
-| Depuração/prototipação virtual | QEMU, GDB, serial debug, objdump e testes incrementais |
-| Kanban semanal | GitHub Projects com tarefas por fase |
-| Versionamento | Git, branches, commits semânticos e tags |
-
----
-
-# 🚀 Fases de Desenvolvimento
-
-O desenvolvimento do TuringOS será dividido em fases. Cada fase adiciona uma camada nova ao sistema.
-
----
-
-## ✅ Fase 0 — Planejamento do Projeto
-
-### Objetivo
-
-Definir o escopo inicial do sistema operacional.
-
-Nesta fase, o foco é decidir o que o TuringOS será e, principalmente, o que ele **não será** neste primeiro momento.
-
-### O que fazer
-
-- Definir o nome do projeto.
-- Definir o objetivo acadêmico.
-- Definir o escopo inicial.
-- Criar o repositório no GitHub.
-- Criar o `README.md`.
-- Criar a estrutura de pastas.
-- Criar o quadro Kanban.
-- Definir as primeiras issues do projeto.
-
-### Escopo inicial recomendado
-
-O TuringOS deve começar como um mini sistema operacional com:
-
-- boot pelo GRUB;
-- kernel em C;
-- entrada inicial em Assembly;
-- saída de texto na tela;
-- limpeza da tela;
-- terminal simples;
-- comandos básicos;
-- execução no QEMU.
-
-### O que evitar no começo
-
-Nesta fase inicial, não tentar implementar:
-
-- interface gráfica;
-- rede;
-- sistema de arquivos real persistente;
-- multitarefa completa;
-- `fork`/`exec` reais;
-- drivers complexos;
-- suporte a pendrive/HD real.
-
-### Entrega da fase
-
-```text
-[OK] Nome definido
-[OK] Repositório criado
-[OK] Estrutura de pastas criada
-[OK] README inicial escrito
-[OK] Escopo definido
-[OK] Kanban criado
-```
-
----
-
-## ✅ Fase 1 — Ambiente de Desenvolvimento
-
-### Objetivo
-
-Preparar o ambiente para compilar e executar o kernel.
-
-### O que fazer
-
-Instalar as ferramentas necessárias:
+Para limpar arquivos gerados:
 
 ```bash
-sudo apt update
-sudo apt install build-essential nasm qemu-system-x86 grub-pc-bin xorriso make gdb
+make clean
 ```
 
-Verificar se as ferramentas foram instaladas corretamente:
+Fluxo recomendado:
 
 ```bash
-gcc --version
-make --version
-nasm -v
-qemu-system-i386 --version
-grub-mkrescue --version
-gdb --version
-```
-
-### Ferramentas importantes
-
-| Ferramenta | Função |
-|---|---|
-| GCC | Compilar código C |
-| NASM/GAS | Montar código Assembly |
-| LD | Linkar os arquivos objeto |
-| Make | Automatizar a compilação |
-| GRUB | Carregar o kernel |
-| QEMU | Executar o SO virtualmente |
-| GDB | Depurar o kernel |
-| Xorriso | Gerar imagem ISO |
-
-### Entrega da fase
-
-Ao final desta fase, o ambiente deve conseguir executar comandos como:
-
-```bash
+make clean
 make
-qemu-system-i386
-grub-mkrescue
-gdb
+make run
 ```
 
 ---
 
-## ✅ Fase 2 — Boot Inicial com GRUB
+## 🧪 Resultado esperado inicial
 
-### Objetivo
-
-Fazer o GRUB carregar o kernel do TuringOS.
-
-Nesta fase, não será criado um bootloader próprio. O GRUB será usado para facilitar o desenvolvimento.
-
-### Por que usar GRUB?
-
-Criar um bootloader do zero é uma tarefa mais difícil. Usar GRUB permite focar primeiro no kernel.
-
-O fluxo será:
+Ao executar no QEMU, a versão inicial deverá exibir algo semelhante a:
 
 ```text
-BIOS/QEMU
-   ↓
-GRUB
-   ↓
-Kernel do TuringOS
+TuringOS v0.1
+Kernel loaded successfully.
+
+An educational Unix-like operating system.
+
+turingos>
 ```
 
-### Arquivos principais
+---
+
+## 🧱 Fases de desenvolvimento
+
+O desenvolvimento será dividido em fases incrementais. Cada fase adiciona uma nova camada ao sistema.
+
+### ✅ Fase 0 — Planejamento do projeto
+
+Objetivo: definir nome, escopo, repositório, documentação inicial e organização do trabalho.
+
+Entregas esperadas:
 
 ```text
-boot/boot.s
+[ ] Nome definido
+[ ] Repositório criado
+[ ] README inicial escrito
+[ ] Estrutura de pastas criada
+[ ] Escopo definido
+[ ] Kanban criado
+[ ] Issues iniciais criadas
+```
+
+---
+
+### ✅ Fase 1 — Ambiente de desenvolvimento
+
+Objetivo: preparar o ambiente para compilar e executar o kernel.
+
+Entregas esperadas:
+
+```text
+[ ] GCC instalado
+[ ] NASM instalado
+[ ] Make instalado
+[ ] QEMU instalado
+[ ] GRUB/Xorriso instalados
+[ ] GDB instalado
+[ ] Ferramentas verificadas
+```
+
+---
+
+### ✅ Fase 2 — Boot inicial com GRUB
+
+Objetivo: fazer o GRUB carregar o kernel do TuringOS.
+
+Arquivos principais:
+
+```text
+boot/boot.asm
 linker.ld
 iso/boot/grub/grub.cfg
 Makefile
 ```
 
-### O que fazer
+Responsabilidades do `boot.asm`:
 
-Criar um arquivo Assembly inicial com cabeçalho Multiboot.
-
-Esse arquivo será responsável por:
-
-- informar ao GRUB que o kernel é carregável;
+- definir o cabeçalho Multiboot;
 - definir o ponto de entrada do kernel;
 - configurar uma pilha inicial;
-- chamar a função principal do kernel em C.
+- chamar `kernel_main()` em C.
 
-### Entrega da fase
-
-Ao final da fase, o GRUB deve conseguir carregar o kernel.
-
-Resultado esperado:
+Entregas esperadas:
 
 ```text
-TuringOS iniciado
+[ ] Cabeçalho Multiboot criado
+[ ] Pilha inicial configurada
+[ ] Entrada do kernel definida
+[ ] GRUB carrega o kernel
+[ ] QEMU executa o kernel
 ```
 
 ---
 
-## ✅ Fase 3 — Kernel Mínimo em C
+### ✅ Fase 3 — Kernel mínimo em C
 
-### Objetivo
+Objetivo: criar o primeiro código em C do kernel.
 
-Criar o primeiro código em C do kernel.
-
-### O que fazer
-
-Criar o arquivo:
+Arquivo principal:
 
 ```text
 kernel/kernel.c
 ```
 
-Com uma função principal do kernel:
+Exemplo conceitual:
 
 ```c
 void kernel_main(void) {
@@ -682,49 +366,44 @@ void kernel_main(void) {
 }
 ```
 
-Nesta fase, o kernel ainda não usa bibliotecas padrão como em um programa comum.
-
-Em um sistema operacional próprio, normalmente você não pode usar diretamente:
+Nesta fase, o kernel não deve depender de bibliotecas de alto nível do sistema operacional hospedeiro, como:
 
 ```c
-printf()
-scanf()
-malloc()
-fopen()
+printf();
+scanf();
+malloc();
+fopen();
 ```
 
-Essas funções dependem de um sistema operacional já existente. Como o TuringOS é o próprio sistema operacional, muitas dessas funcionalidades precisam ser criadas manualmente.
+Essas funções dependem de um sistema operacional já existente. Como o TuringOS será o próprio sistema operacional, várias funcionalidades precisarão ser implementadas manualmente.
 
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] boot.s chama kernel_main()
-[OK] kernel.c compila
-[OK] kernel é linkado
-[OK] QEMU executa o kernel
+[ ] `kernel_main()` criado
+[ ] `boot.asm` chama `kernel_main()`
+[ ] Código C compila em modo freestanding
+[ ] Kernel é linkado corretamente
+[ ] QEMU executa o kernel
 ```
 
 ---
 
-## ✅ Fase 4 — Driver de Vídeo em Modo Texto
+### ✅ Fase 4 — Driver de vídeo VGA
 
-### Objetivo
+Objetivo: criar a primeira forma de saída na tela.
 
-Criar a primeira forma de saída na tela.
-
-Em modo texto VGA, é possível escrever caracteres diretamente na memória de vídeo, no endereço:
+Em modo texto VGA, é possível escrever caracteres diretamente na memória de vídeo no endereço:
 
 ```text
 0xB8000
 ```
 
-### Ideia
-
-Cada caractere na tela usa dois bytes:
+Cada caractere ocupa dois bytes:
 
 ```text
 Byte 1: caractere
-Byte 2: cor
+Byte 2: atributo/cor
 ```
 
 Exemplo conceitual:
@@ -736,11 +415,7 @@ video[0] = 'T';
 video[1] = 0x07;
 ```
 
-Isso escreve a letra `T` na tela.
-
-### O que implementar
-
-Criar arquivos:
+Arquivos principais:
 
 ```text
 kernel/vga.c
@@ -756,38 +431,25 @@ void vga_clear(void);
 void vga_set_color(unsigned char color);
 ```
 
-### Resultado esperado
-
-Ao rodar no QEMU, deve aparecer algo como:
+Entregas esperadas:
 
 ```text
-TuringOS v0.1
-Kernel loaded successfully.
-```
-
-### Entrega da fase
-
-```text
-[OK] Escrever caractere na tela
-[OK] Escrever string na tela
-[OK] Limpar tela
-[OK] Controlar posição do cursor
-[OK] Controlar cor básica
+[ ] Escrever caractere na tela
+[ ] Escrever string na tela
+[ ] Limpar tela
+[ ] Controlar posição do cursor
+[ ] Controlar cor básica
 ```
 
 ---
 
-## ✅ Fase 5 — Terminal Básico
+### ✅ Fase 5 — Terminal básico
 
-### Objetivo
-
-Criar uma camada de terminal acima do driver VGA.
+Objetivo: criar uma camada de terminal acima do driver VGA.
 
 O driver VGA escreve diretamente na tela. O terminal organiza essa escrita de forma mais amigável.
 
-### O que implementar
-
-Criar arquivos:
+Arquivos principais:
 
 ```text
 kernel/terminal.c
@@ -804,57 +466,30 @@ void terminal_writeln(const char* str);
 void terminal_clear(void);
 ```
 
-### Funcionalidades
-
-O terminal deve cuidar de:
+Responsabilidades do terminal:
 
 - quebra de linha;
 - avanço do cursor;
 - limpeza da tela;
-- limite de linhas e colunas;
+- controle de linhas e colunas;
 - rolagem de tela futuramente.
 
-### Resultado esperado
-
-A tela deve mostrar:
+Entregas esperadas:
 
 ```text
-TuringOS v0.1
-An educational Unix-like operating system.
-
-turingos>
-```
-
-### Entrega da fase
-
-```text
-[OK] Terminal inicializado
-[OK] Escrita de texto organizada
-[OK] Quebra de linha funcionando
-[OK] Prompt inicial exibido
+[ ] Terminal inicializado
+[ ] Escrita de texto organizada
+[ ] Quebra de linha funcionando
+[ ] Prompt exibido
 ```
 
 ---
 
-## ✅ Fase 6 — Makefile e Automação da Compilação
+### ✅ Fase 6 — Makefile e automação
 
-### Objetivo
+Objetivo: automatizar o processo de compilação, linkedição, geração da ISO, execução e depuração.
 
-Automatizar a compilação do projeto.
-
-### O que fazer
-
-Criar um `Makefile` capaz de:
-
-- compilar arquivos Assembly;
-- compilar arquivos C;
-- linkar o kernel;
-- gerar a ISO;
-- executar no QEMU;
-- limpar arquivos temporários;
-- preparar modo de depuração.
-
-### Comandos desejados
+Comandos desejados:
 
 ```bash
 make
@@ -864,39 +499,27 @@ make debug
 make clean
 ```
 
-### Exemplo de fluxo
+Entregas esperadas:
 
-```bash
-make clean
-make
-make run
-```
-
-### Entrega da fase
-
-O projeto deve ser executado com apenas:
-
-```bash
-make run
+```text
+[ ] Compilar Assembly
+[ ] Compilar C
+[ ] Linkar kernel
+[ ] Gerar `turingos.bin`
+[ ] Gerar `turingos.iso`
+[ ] Executar com `make run`
+[ ] Depurar com `make debug`
 ```
 
 ---
 
-## ✅ Fase 7 — Entrada pelo Teclado
+### ✅ Fase 7 — Entrada pelo teclado
 
-### Objetivo
+Objetivo: permitir que o usuário digite comandos.
 
-Permitir que o usuário digite comandos.
+O teclado PS/2 envia códigos chamados **scancodes**. O kernel precisa ler esses códigos e convertê-los em caracteres.
 
-Essa fase já é mais difícil, porque envolve leitura de hardware.
-
-### Ideia
-
-O teclado PS/2 normalmente envia códigos chamados **scancodes**. O kernel precisa ler esses códigos e convertê-los em caracteres.
-
-### O que implementar
-
-Criar arquivos:
+Arquivos principais:
 
 ```text
 kernel/keyboard.c
@@ -906,56 +529,44 @@ include/keyboard.h
 Funções iniciais:
 
 ```c
-char keyboard_getchar(void);
 void keyboard_init(void);
+char keyboard_getchar(void);
 ```
 
-### Conceitos envolvidos
+Conceitos estudados:
 
-Nesta fase, serão estudados:
-
-- portas de entrada/saída;
+- portas de entrada e saída;
 - instruções `in` e `out`;
 - scancodes;
-- interrupções de teclado;
-- buffer de entrada.
+- buffer de entrada;
+- tratamento básico de teclas;
+- interrupções de teclado futuramente.
 
-### Resultado esperado
-
-O usuário deve conseguir digitar algo na tela:
-
-```text
-turingos> help
-```
-
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] Teclado inicializado
-[OK] Teclas aparecem na tela
-[OK] Backspace básico
-[OK] Enter funcionando
-[OK] Buffer de comando criado
+[ ] Teclado inicializado
+[ ] Leitura de tecla funcionando
+[ ] Caracteres aparecem na tela
+[ ] Backspace básico
+[ ] Enter funcionando
+[ ] Buffer de comando criado
 ```
 
 ---
 
-## ✅ Fase 8 — Shell Simples
+### ✅ Fase 8 — Shell simples
 
-### Objetivo
+Objetivo: criar uma interface textual para interpretar comandos do usuário.
 
-Criar um shell básico para interpretar comandos do usuário.
-
-O shell será uma camada simples que recebe uma string digitada pelo usuário e executa uma ação correspondente.
-
-### Arquivos sugeridos
+Arquivos principais:
 
 ```text
 kernel/shell.c
 include/shell.h
 ```
 
-### Comandos iniciais
+Comandos iniciais:
 
 ```bash
 help
@@ -965,7 +576,7 @@ version
 echo
 ```
 
-### Exemplo de uso
+Exemplo de uso:
 
 ```text
 TuringOS v0.1
@@ -981,46 +592,29 @@ echo      - imprime um texto
 turingos>
 ```
 
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] Prompt funcionando
-[OK] Comando help
-[OK] Comando clear
-[OK] Comando about
-[OK] Comando version
-[OK] Comando echo
+[ ] Prompt funcionando
+[ ] Comando help
+[ ] Comando clear
+[ ] Comando about
+[ ] Comando version
+[ ] Comando echo
 ```
 
 ---
 
-## ✅ Fase 9 — Interrupções
+### ✅ Fase 9 — Interrupções
 
-### Objetivo
+Objetivo: implementar suporte básico a interrupções.
 
-Implementar suporte básico a interrupções.
-
-Interrupções são fundamentais para um sistema operacional. Elas permitem que o hardware avise o processador quando algo acontece.
-
-Exemplos:
+Interrupções permitem que o hardware avise o processador quando algo acontece, como:
 
 - uma tecla foi pressionada;
 - o timer disparou;
 - ocorreu uma exceção;
 - um dispositivo precisa de atenção.
-
-### Conceitos importantes
-
-Nesta fase, serão estudados:
-
-- IDT;
-- ISR;
-- IRQ;
-- PIC;
-- exceções da CPU;
-- interrupções de hardware.
-
-### O que implementar
 
 Arquivos sugeridos:
 
@@ -1033,40 +627,35 @@ include/isr.h
 include/irq.h
 ```
 
-### Resultado esperado
+Conceitos estudados:
 
-O kernel deve conseguir registrar e tratar interrupções básicas.
+- IDT;
+- ISR;
+- IRQ;
+- PIC;
+- exceções da CPU;
+- interrupções de hardware.
 
-Exemplo:
-
-```text
-[OK] IDT initialized
-[OK] Interrupts enabled
-```
-
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] IDT criada
-[OK] Exceções básicas tratadas
-[OK] IRQs configuradas
-[OK] Teclado usando interrupção
-[OK] Timer usando interrupção
+[ ] IDT criada
+[ ] Exceções básicas tratadas
+[ ] IRQs configuradas
+[ ] Interrupções habilitadas
+[ ] Teclado usando interrupção
+[ ] Timer usando interrupção
 ```
 
 ---
 
-## ✅ Fase 10 — Timer
+### ✅ Fase 10 — Timer
 
-### Objetivo
-
-Adicionar um contador de tempo ao sistema.
+Objetivo: adicionar um contador de tempo ao sistema.
 
 O timer permite que o kernel conte ticks e futuramente implemente escalonamento de tarefas.
 
-### O que implementar
-
-Criar arquivos:
+Arquivos principais:
 
 ```text
 kernel/timer.c
@@ -1081,9 +670,7 @@ unsigned int timer_get_ticks(void);
 void timer_sleep(unsigned int ticks);
 ```
 
-### Comandos no shell
-
-Adicionar comandos:
+Comandos no shell:
 
 ```bash
 ticks
@@ -1097,28 +684,24 @@ turingos> ticks
 Ticks: 1524
 ```
 
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] Timer inicializado
-[OK] Contador de ticks
-[OK] Comando ticks
-[OK] Comando uptime
+[ ] Timer inicializado
+[ ] Contador de ticks
+[ ] Comando ticks
+[ ] Comando uptime
 ```
 
 ---
 
-## ✅ Fase 11 — Gerenciamento Básico de Memória
+### ✅ Fase 11 — Gerenciamento básico de memória
 
-### Objetivo
+Objetivo: criar um gerenciamento simples de memória dentro do kernel.
 
-Criar um gerenciamento simples de memória dentro do kernel.
+Inicialmente, não será necessário implementar paginação completa. O primeiro passo pode ser um alocador linear simples.
 
-No início, não é necessário implementar paginação completa. O primeiro passo pode ser um alocador simples.
-
-### O que implementar
-
-Criar arquivos:
+Arquivos principais:
 
 ```text
 kernel/memory.c
@@ -1133,21 +716,15 @@ void* kmalloc(unsigned int size);
 void memory_dump(void);
 ```
 
-### Ideia inicial
-
-Pode ser usado um alocador linear simples:
+Ideia inicial:
 
 ```text
-heap_start → [ área livre de memória ] → heap_end
+heap_start → área livre de memória → heap_end
 ```
 
-Cada chamada a `kmalloc` avança um ponteiro.
+Cada chamada a `kmalloc` avança um ponteiro. Esse modelo inicial não precisa liberar memória com `free`; ele serve para estudo e prototipação.
 
-### Limitação
-
-Esse modelo inicial não precisa liberar memória com `free`. Ele serve apenas para estudo.
-
-### Comandos no shell
+Comando no shell:
 
 ```bash
 mem
@@ -1160,34 +737,30 @@ turingos> mem
 Kernel heap used: 1024 bytes
 ```
 
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] Área de heap definida
-[OK] kmalloc simples
-[OK] Comando mem
-[OK] Exibição de memória usada
+[ ] Área de heap definida
+[ ] `kmalloc` simples
+[ ] Comando mem
+[ ] Exibição de memória usada
 ```
 
 ---
 
-## ✅ Fase 12 — Sistema de Arquivos em Memória
+### ✅ Fase 12 — Sistema de arquivos em memória
 
-### Objetivo
+Objetivo: criar um sistema de arquivos simples em RAM.
 
-Criar um sistema de arquivos simples em RAM.
-
-Nesta fase, o sistema ainda não grava no disco. Os arquivos existem apenas enquanto o sistema está rodando.
-
-### Nome sugerido
+Nome sugerido:
 
 ```text
 RAMFS
 ```
 
-### O que implementar
+Nesta fase, o sistema ainda não grava em disco. Os arquivos existem apenas enquanto o sistema está rodando.
 
-Criar arquivos:
+Arquivos principais:
 
 ```text
 kernel/ramfs.c
@@ -1204,7 +777,7 @@ struct file {
 };
 ```
 
-### Comandos do shell
+Comandos do shell:
 
 ```bash
 ls
@@ -1224,27 +797,25 @@ turingos> cat readme.txt
 Hello
 ```
 
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] Criar arquivo em memória
-[OK] Listar arquivos
-[OK] Escrever conteúdo
-[OK] Ler conteúdo
-[OK] Comandos ls, cat, touch e write
+[ ] Criar arquivo em memória
+[ ] Listar arquivos
+[ ] Escrever conteúdo
+[ ] Ler conteúdo
+[ ] Comandos ls, cat, touch e write
 ```
 
 ---
 
-## ✅ Fase 13 — Chamadas de Sistema Conceituais
+### ✅ Fase 13 — Chamadas internas conceituais
 
-### Objetivo
+Objetivo: criar uma camada conceitual semelhante a chamadas de sistema.
 
-Criar uma camada conceitual parecida com chamadas de sistema.
+Nesta fase, não é necessário haver separação real entre modo usuário e modo kernel. O objetivo é organizar a arquitetura.
 
-Nesta fase, não precisa haver ainda separação real entre modo usuário e modo kernel. O objetivo inicial é organizar a arquitetura.
-
-### Exemplo de chamadas
+Exemplos:
 
 ```c
 int sys_write(const char* str);
@@ -1252,38 +823,35 @@ int sys_clear(void);
 int sys_get_ticks(void);
 ```
 
-### Ideia
-
-O shell não deve acessar tudo diretamente. Ele pode usar funções internas que representam chamadas ao kernel.
+Ideia:
 
 ```text
 Shell
   ↓
-Syscalls conceituais
+Chamadas internas conceituais
   ↓
 Kernel
   ↓
 Drivers
 ```
 
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] sys_write
-[OK] sys_clear
-[OK] sys_get_ticks
-[OK] organização em camada
+[ ] `sys_write`
+[ ] `sys_clear`
+[ ] `sys_get_ticks`
+[ ] Shell usando camada interna
+[ ] Organização em camadas
 ```
 
 ---
 
-## ✅ Fase 14 — Organização Unix-like
+### ✅ Fase 14 — Organização Unix-like
 
-### Objetivo
+Objetivo: aproximar o projeto da filosofia Unix, sem tentar implementar um Unix real.
 
-Aproximar o projeto da filosofia Unix.
-
-O TuringOS não será um Unix real, mas pode seguir algumas ideias:
+Ideias aplicadas:
 
 - terminal como interface principal;
 - comandos pequenos e simples;
@@ -1293,7 +861,7 @@ O TuringOS não será um Unix real, mas pode seguir algumas ideias:
 - recursos tratados de forma uniforme;
 - shell como principal forma de interação.
 
-### Ideias de comandos
+Comandos previstos:
 
 ```bash
 help
@@ -1310,7 +878,7 @@ touch
 write
 ```
 
-### Ideias futuras
+Ideias futuras:
 
 ```bash
 ps
@@ -1322,29 +890,25 @@ mkdir
 rm
 ```
 
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] Shell organizado
-[OK] Comandos documentados
-[OK] Estrutura parecida com Unix
-[OK] README atualizado
+[ ] Shell organizado
+[ ] Comandos documentados
+[ ] Estrutura modular
+[ ] README atualizado
 ```
 
 ---
 
-## ✅ Fase 15 — Documentação e Apresentação
+### ✅ Fase 15 — Documentação e apresentação
 
-### Objetivo
-
-Transformar o projeto em algo apresentável para faculdade e GitHub.
-
-### O que documentar
+Objetivo: transformar o projeto em algo apresentável para a disciplina e para o GitHub.
 
 O README deve explicar:
 
 - objetivo do projeto;
-- tecnologias usadas;
+- tecnologias utilizadas;
 - como compilar;
 - como executar;
 - arquitetura;
@@ -1354,17 +918,7 @@ O README deve explicar:
 - próximos passos;
 - prints ou GIFs do sistema rodando.
 
-### Comandos de execução
-
-Exemplo:
-
-```bash
-git clone https://github.com/seu-usuario/turing-os.git
-cd turing-os
-make run
-```
-
-### Sugestão de seção para prints
+Sugestão de seção para demonstração:
 
 ```markdown
 ## Demonstração
@@ -1372,117 +926,122 @@ make run
 ![TuringOS rodando no QEMU](docs/images/turingos-demo.png)
 ```
 
-### Entrega da fase
+Entregas esperadas:
 
 ```text
-[OK] README completo
-[OK] Código organizado
-[OK] Makefile funcionando
-[OK] Prints adicionados
-[OK] Projeto pronto para apresentação
+[ ] README completo
+[ ] Código organizado
+[ ] Makefile funcionando
+[ ] Prints adicionados
+[ ] Documentação técnica criada
+[ ] Projeto pronto para apresentação
 ```
 
 ---
 
-# 🗓️ Cronograma Sugerido
+## 🗓️ Cronograma sugerido
 
-## Versão mínima — 2 a 3 semanas
+### Versão mínima — 2 a 3 semanas
 
 ```text
 Semana 1:
-- ambiente
-- boot
-- kernel mínimo
-- escrita na tela
+- configurar ambiente;
+- criar estrutura do projeto;
+- configurar GRUB;
+- criar kernel mínimo;
+- executar no QEMU.
 
 Semana 2:
-- terminal
-- clear
-- comandos fixos
-- Makefile
+- implementar VGA;
+- implementar terminal;
+- adicionar limpeza de tela;
+- automatizar com Makefile.
 
 Semana 3:
-- documentação
-- organização
-- apresentação
+- documentar engenharia reversa;
+- documentar depuração;
+- organizar Kanban;
+- preparar apresentação.
 ```
 
-## Versão recomendada — 4 a 6 semanas
+### Versão recomendada — 4 a 6 semanas
 
 ```text
 Semana 1:
-- ambiente
-- GRUB
-- kernel mínimo
-- QEMU
+- ambiente;
+- GRUB;
+- kernel mínimo;
+- QEMU.
 
 Semana 2:
-- driver VGA
-- terminal
-- Makefile
+- driver VGA;
+- terminal;
+- Makefile.
 
 Semana 3:
-- teclado
-- shell
-- comandos básicos
+- teclado;
+- shell;
+- comandos básicos.
 
 Semana 4:
-- interrupções
-- timer
-- comandos ticks/uptime
+- interrupções;
+- timer;
+- comandos ticks/uptime.
 
 Semana 5:
-- memória simples
-- RAMFS
+- memória simples;
+- RAMFS inicial.
 
 Semana 6:
-- documentação
-- testes
-- prints
-- apresentação
+- documentação;
+- testes;
+- prints;
+- apresentação final.
 ```
 
-## Versão avançada — 8 a 12 semanas
+### Versão avançada — 8 a 12 semanas
 
 ```text
 Semanas 1-2:
-- boot
-- kernel
-- tela
-- terminal
+- boot;
+- kernel;
+- VGA;
+- terminal.
 
 Semanas 3-4:
-- teclado
-- shell
-- comandos
+- teclado;
+- shell;
+- comandos.
 
 Semanas 5-6:
-- interrupções
-- timer
-- memória
+- interrupções;
+- timer;
+- memória.
 
 Semanas 7-8:
-- RAMFS
-- syscalls conceituais
+- RAMFS;
+- chamadas internas conceituais.
 
 Semanas 9-10:
-- tarefas/processos simples
+- tarefas/processos simples;
+- escalonamento cooperativo experimental.
 
 Semanas 11-12:
-- documentação
-- refinamento
-- apresentação final
+- documentação;
+- refinamento;
+- apresentação final.
 ```
 
 ---
 
-# 📊 Roadmap do Projeto
+## 📊 Roadmap
 
-## TuringOS v0.1
+### TuringOS v0.1 — Kernel mínimo
 
 ```text
 [ ] Boot com GRUB
 [ ] Kernel em C
+[ ] Entrada em Assembly
 [ ] Escrita na tela
 [ ] Limpar tela
 [ ] Terminal básico
@@ -1490,16 +1049,19 @@ Semanas 11-12:
 [ ] Execução no QEMU
 ```
 
-## TuringOS v0.2
+### TuringOS v0.2 — Terminal e comandos fixos
 
 ```text
 [ ] Driver VGA melhorado
 [ ] Cores no terminal
-[ ] Prompt turingos>
-[ ] Comandos help, clear, about e version
+[ ] Prompt `turingos>`
+[ ] Comando help
+[ ] Comando clear
+[ ] Comando about
+[ ] Comando version
 ```
 
-## TuringOS v0.3
+### TuringOS v0.3 — Teclado e shell
 
 ```text
 [ ] Entrada de teclado
@@ -1508,25 +1070,30 @@ Semanas 11-12:
 [ ] Comando echo
 ```
 
-## TuringOS v0.4
+### TuringOS v0.4 — Interrupções e timer
 
 ```text
 [ ] IDT
-[ ] Interrupções
+[ ] ISR
+[ ] IRQ
 [ ] Timer
-[ ] Comandos ticks e uptime
+[ ] Comando ticks
+[ ] Comando uptime
 ```
 
-## TuringOS v0.5
+### TuringOS v0.5 — Memória e RAMFS
 
 ```text
-[ ] kmalloc simples
+[ ] `kmalloc` simples
 [ ] Comando mem
 [ ] RAMFS inicial
-[ ] Comandos ls, cat, touch e write
+[ ] Comando ls
+[ ] Comando cat
+[ ] Comando touch
+[ ] Comando write
 ```
 
-## TuringOS v1.0
+### TuringOS v1.0 — Versão de apresentação
 
 ```text
 [ ] Kernel organizado
@@ -1534,51 +1101,208 @@ Semanas 11-12:
 [ ] Drivers básicos
 [ ] Memória simples
 [ ] RAMFS
-[ ] Documentação completa
+[ ] Engenharia reversa documentada
+[ ] Depuração documentada
+[ ] Kanban atualizado
+[ ] README completo
 [ ] Demonstração em QEMU
 ```
 
 ---
 
-# 🧪 Como Compilar
+## 🔍 Engenharia reversa de sistema sem código-fonte
 
-Depois que o Makefile estiver pronto, o projeto deverá ser compilado com:
+Além do estudo de referências abertas, o projeto terá uma etapa específica de **engenharia reversa sem acesso ao código-fonte**.
 
-```bash
-make
-```
+Nessa etapa, será analisado um binário relacionado ao processo de boot ou a um kernel mínimo. O objetivo é compreender o comportamento do binário observando sua estrutura e suas instruções de máquina.
 
-Para gerar a ISO:
+Ferramentas previstas:
 
 ```bash
-make iso
+objdump
+ndisasm
+hexdump
+readelf
+gdb
+qemu-system-i386
 ```
 
-Para executar no QEMU:
+Aspectos que serão analisados:
+
+- formato do binário;
+- ponto de entrada;
+- cabeçalhos e seções;
+- instruções Assembly principais;
+- chamadas e desvios;
+- endereços relevantes;
+- relação entre instruções e comportamento observado no QEMU;
+- comparação entre análise estática e execução dinâmica.
+
+Exemplos de comandos:
+
+```bash
+objdump -D -b binary -m i386 turingos.bin
+hexdump -C turingos.bin | head
+ndisasm -b 32 turingos.bin | less
+gdb turingos.bin
+```
+
+A documentação ficará em:
+
+```text
+docs/reverse-engineering.md
+```
+
+O estudo de projetos com código-fonte aberto, como xv6, Minix e exemplos da OSDev Wiki, será usado apenas como **referência conceitual complementar**, não como substituto da etapa de engenharia reversa sem código-fonte.
+
+---
+
+## 🐞 Depuração e prototipação virtual
+
+O desenvolvimento será realizado em ambiente virtualizado usando QEMU.
+
+O uso do QEMU permite testar o sistema operacional sem instalá-lo em uma máquina física, reduzindo riscos e facilitando a depuração.
+
+Ferramentas utilizadas:
+
+- QEMU;
+- GDB;
+- logs via porta serial;
+- Makefile;
+- `objdump`;
+- `hexdump`;
+- testes incrementais.
+
+Exemplo de execução simples:
 
 ```bash
 make run
 ```
 
-Para depurar:
+Exemplo de execução aguardando conexão do GDB:
 
 ```bash
-make debug
+qemu-system-i386 -kernel build/turingos.bin -s -S
 ```
 
-Para limpar arquivos gerados:
+Exemplo de depuração:
 
 ```bash
-make clean
+gdb build/turingos.bin
+```
+
+Dentro do GDB:
+
+```gdb
+target remote localhost:1234
+break kernel_main
+continue
+info registers
+```
+
+A documentação ficará em:
+
+```text
+docs/debugging.md
 ```
 
 ---
 
-# 🧠 Conceitos Estudados
+## 🗂️ Planejamento com Kanban
 
-Durante o desenvolvimento do TuringOS, serão estudados:
+O desenvolvimento será acompanhado por um quadro Kanban, preferencialmente usando GitHub Projects.
 
-## Sistemas Operacionais
+Colunas sugeridas:
+
+```text
+A fazer
+Em desenvolvimento
+Em teste
+Concluído
+```
+
+Exemplo de tarefas iniciais:
+
+```text
+[ ] Configurar ambiente no WSL2
+[ ] Criar estrutura inicial do projeto
+[ ] Criar boot.asm com cabeçalho Multiboot
+[ ] Criar linker.ld
+[ ] Criar kernel.c
+[ ] Criar Makefile
+[ ] Gerar primeira ISO
+[ ] Executar no QEMU
+[ ] Implementar escrita VGA
+[ ] Implementar terminal básico
+[ ] Documentar engenharia reversa
+[ ] Documentar depuração com GDB
+```
+
+A documentação ficará em:
+
+```text
+docs/kanban.md
+```
+
+---
+
+## 🌱 Estratégia de versionamento
+
+O projeto será versionado com Git e hospedado no GitHub.
+
+Estratégia sugerida de branches:
+
+```text
+main         → versão estável
+/dev         → desenvolvimento principal
+feature/*    → novas funcionalidades
+fix/*        → correções
+```
+
+Exemplos de branches:
+
+```text
+feature/boot
+feature/vga-driver
+feature/terminal
+feature/keyboard-driver
+feature/shell
+feature/timer
+feature/memory
+feature/ramfs
+feature/reverse-engineering-docs
+```
+
+Exemplos de commits semânticos:
+
+```text
+feat: add multiboot header
+feat: implement VGA text output
+feat: add terminal clear function
+feat: create basic shell prompt
+feat: add keyboard scancode reader
+fix: correct cursor position on new line
+docs: update reverse engineering notes
+docs: add debugging guide
+chore: configure Makefile build targets
+```
+
+Tags sugeridas:
+
+```text
+v0.1 - boot e kernel mínimo
+v0.2 - terminal básico
+v0.3 - shell inicial
+v0.4 - interrupções e timer
+v0.5 - memória e RAMFS
+v1.0 - versão final da apresentação
+```
+
+---
+
+## 🧠 Conceitos estudados
+
+### Sistemas Operacionais
 
 - kernel;
 - boot;
@@ -1590,7 +1314,7 @@ Durante o desenvolvimento do TuringOS, serão estudados:
 - chamadas de sistema;
 - sistema de arquivos.
 
-## Arquitetura de Computadores
+### Arquitetura de Computadores
 
 - registradores;
 - pilha;
@@ -1601,7 +1325,7 @@ Durante o desenvolvimento do TuringOS, serão estudados:
 - timer;
 - teclado.
 
-## Programação em C
+### Programação em C
 
 - ponteiros;
 - structs;
@@ -1609,19 +1333,20 @@ Durante o desenvolvimento do TuringOS, serão estudados:
 - manipulação de memória;
 - funções;
 - organização modular;
-- compilação separada.
+- compilação separada;
+- ambiente freestanding.
 
-## Assembly
+### Assembly
 
 - ponto de entrada;
-- configuração inicial;
+- cabeçalho Multiboot;
+- configuração inicial da pilha;
 - chamadas entre Assembly e C;
 - instruções de baixo nível;
 - manipulação de registradores;
-- código de montagem;
 - geração de objeto binário.
 
-## Engenharia de Software
+### Engenharia de Software
 
 - organização em módulos;
 - documentação;
@@ -1634,9 +1359,9 @@ Durante o desenvolvimento do TuringOS, serão estudados:
 
 ---
 
-# ⚠️ Limitações do Projeto
+## ⚠️ Limitações do projeto
 
-O TuringOS é um projeto educacional. Portanto, inicialmente ele não terá:
+O TuringOS é um projeto educacional. Inicialmente, ele não terá:
 
 - suporte completo a POSIX;
 - multitarefa real;
@@ -1644,17 +1369,18 @@ O TuringOS é um projeto educacional. Portanto, inicialmente ele não terá:
 - sistema de arquivos persistente;
 - rede;
 - interface gráfica;
-- suporte a drivers modernos;
+- drivers modernos;
 - compatibilidade com programas Linux;
-- segurança robusta.
+- segurança robusta;
+- carregamento de programas externos ELF.
 
-Essas funcionalidades podem ser estudadas futuramente.
+Essas funcionalidades podem ser estudadas em versões futuras.
 
 ---
 
-# 🔮 Possíveis Funcionalidades Futuras
+## 🔮 Funcionalidades futuras
 
-Funcionalidades que podem ser adicionadas em versões futuras:
+Possíveis evoluções do projeto:
 
 ```text
 [ ] Multitarefa cooperativa
@@ -1673,13 +1399,13 @@ Funcionalidades que podem ser adicionadas em versões futuras:
 
 ---
 
-# 🎓 Valor Acadêmico
+## 🎓 Valor acadêmico
 
 Este projeto é útil para disciplinas como:
 
+- Interface Hardware/Software;
 - Sistemas Operacionais;
 - Arquitetura de Computadores;
-- Interface Hardware-Software;
 - Programação em C;
 - Programação em Assembly;
 - Compiladores;
@@ -1690,12 +1416,10 @@ O TuringOS ajuda a compreender, na prática, como um computador sai do estado in
 
 ---
 
-# 📚 Referências Recomendadas
+## 📚 Referências recomendadas
 
-Algumas referências úteis para estudar durante o projeto:
-
-- Andrew S. Tanenbaum — Sistemas Operacionais Modernos;
-- Abraham Silberschatz — Operating System Concepts;
+- Andrew S. Tanenbaum — *Sistemas Operacionais Modernos*;
+- Abraham Silberschatz — *Operating System Concepts*;
 - OSDev Wiki;
 - Intel Software Developer Manuals;
 - GNU GRUB Manual;
@@ -1707,11 +1431,9 @@ Algumas referências úteis para estudar durante o projeto:
 
 ---
 
-# 🧾 Licença
+## 🧾 Licença
 
 Este projeto pode ser distribuído sob a licença MIT.
-
-Exemplo:
 
 ```text
 MIT License
@@ -1724,17 +1446,15 @@ of this software and associated documentation files...
 
 ---
 
-# 👨‍💻 Autor
+## 👨‍💻 Autor
 
 Desenvolvido por **Joseph Antony**.
 
-Projeto acadêmico e educacional voltado ao estudo de Sistemas Operacionais, C, Assembly, Arquitetura de Computadores e Interface Hardware-Software.
+Projeto acadêmico e educacional voltado ao estudo de Interface Hardware/Software, Sistemas Operacionais, C, Assembly, Arquitetura de Computadores e engenharia reversa de binários.
 
 ---
 
-# 🧠 TuringOS
-
-> Um mini sistema operacional educacional inspirado em Unix, criado para compreender como kernels funcionam por dentro.
+## 🧠 TuringOS
 
 ```text
 TuringOS
@@ -1746,6 +1466,7 @@ TuringOS
 ├── Shell
 ├── RAMFS
 ├── Debug
+├── Engenharia reversa
 ├── Git/Kanban
 └── Unix-like concepts
 ```
