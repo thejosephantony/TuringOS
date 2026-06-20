@@ -1,6 +1,5 @@
 # 🧠 TuringOS
 
-<<<<<<< HEAD
 > Um mini sistema operacional educacional inspirado em Unix, desenvolvido em C e Assembly para estudar, na prática, a interface entre hardware e software.
 
 ## 📌 Visão geral
