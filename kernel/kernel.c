@@ -1,32 +1,41 @@
 #include "terminal.h"
+#include "vga.h"
 
-static void sleep_approx_seconds(int seconds) {
-    volatile unsigned int loops = 0;
-    volatile unsigned int target = seconds * 10000000;
-    while (loops < target) loops++;
+static void kernel_print_banner(void) {
+    terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
+    terminal_writeln("============================================================");
+    terminal_writeln("                         TuringOS v0.2                       ");
+    terminal_writeln("              Educational Unix-like Kernel                   ");
+    terminal_writeln("============================================================");
+
+    terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
+    terminal_writeln("");
+}
+
+static void kernel_print_status(void) {
+    terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
+    terminal_writeln("[OK] Kernel initialized successfully");
+    terminal_writeln("[OK] VGA text mode driver loaded");
+    terminal_writeln("[OK] Terminal abstraction initialized");
+
+    terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
+    terminal_writeln("");
+    terminal_writeln("Bootloader : GRUB / Multiboot");
+    terminal_writeln("Kernel     : C + Assembly x86");
+    terminal_writeln("Video      : VGA text mode");
+    terminal_writeln("Status     : OK");
+    terminal_writeln("");
 }
 
 void kernel_main(void) {
     terminal_initialize();
-    
-    for (int i = 0; i < 30; i++) {
-        terminal_writestring("Linha: ");
-        terminal_putchar('0' + (i % 10));
-        terminal_putchar('\n');
-    }
-    
-    terminal_writestring("\nTestes OK! Limpando em instantes...\n");
-    sleep_approx_seconds(2);
-    
-    terminal_clear();
-    
-    terminal_writestring("##### #   # ####  ### #   #  ###      ###   #### \n");
-    terminal_writestring("  #   #   # #   #  #  ##  # #        #   # #    \n");
-    terminal_writestring("  #   #   # ####   #  # # # #  ##    #   #  ###  \n");
-    terminal_writestring("  #   #   # #  #   #  #  ## #   #    #   #     # \n");
-    terminal_writestring("  #    ###  #   # ### #   #  ###      ###  ####  \n");
-    terminal_writestring("v0.2\n");
-    
+
+    kernel_print_banner();
+    kernel_print_status();
+
+    terminal_set_color(vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
+    terminal_writestring("turingos> ");
+
     while (1) {
         __asm__ volatile ("hlt");
     }
