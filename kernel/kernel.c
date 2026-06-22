@@ -1,33 +1,42 @@
-/*
- * TuringOS - kernel.c
- * Kernel mínimo em C.
- *
- * Esta primeira versão escreve diretamente na memória de vídeo VGA.
- */
+#include "terminal.h"
+#include "vga.h"
 
-#define VGA_MEMORY ((volatile unsigned short*)0xB8000)
-#define VGA_COLOR_WHITE_ON_BLACK 0x0F
+static void kernel_print_banner(void) {
+    terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
+    terminal_writeln("============================================================");
+    terminal_writeln("                         TuringOS v0.2                       ");
+    terminal_writeln("              Educational Unix-like Kernel                   ");
+    terminal_writeln("============================================================");
 
-static unsigned short vga_entry(char character, unsigned char color) {
-    return (unsigned short) character | (unsigned short) color << 8;
+    terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
+    terminal_writeln("");
 }
 
-static void kernel_clear_screen(void) {
-    for (int i = 0; i < 80 * 25; i++) {
-        VGA_MEMORY[i] = vga_entry(' ', VGA_COLOR_WHITE_ON_BLACK);
-    }
-}
+static void kernel_print_status(void) {
+    terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK));
+    terminal_writeln("[OK] Kernel initialized successfully");
+    terminal_writeln("[OK] VGA text mode driver loaded");
+    terminal_writeln("[OK] Terminal abstraction initialized");
 
-static void kernel_write_string(const char* text) {
-    int i = 0;
-
-    while (text[i] != '\0') {
-        VGA_MEMORY[i] = vga_entry(text[i], VGA_COLOR_WHITE_ON_BLACK);
-        i++;
-    }
+    terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
+    terminal_writeln("");
+    terminal_writeln("Bootloader : GRUB / Multiboot");
+    terminal_writeln("Kernel     : C + Assembly x86");
+    terminal_writeln("Video      : VGA text mode");
+    terminal_writeln("Status     : OK");
+    terminal_writeln("");
 }
 
 void kernel_main(void) {
-    kernel_clear_screen();
-    kernel_write_string("TuringOS v0.1 - Kernel loaded successfully.");
+    terminal_initialize();
+
+    kernel_print_banner();
+    kernel_print_status();
+
+    terminal_set_color(vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
+    terminal_writestring("turingos> ");
+
+    while (1) {
+        __asm__ volatile ("hlt");
+    }
 }
