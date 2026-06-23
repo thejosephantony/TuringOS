@@ -1,211 +1,158 @@
 # TuringOS
 
-**TuringOS** é um mini sistema operacional educacional inspirado em Unix, desenvolvido em **C** e **Assembly x86**, com o objetivo de estudar, na prática, conceitos de **Interface Hardware/Software**, **Sistemas Operacionais**, **Arquitetura de Computadores**, **geração de código de máquina**, **drivers básicos**, **depuração** e **engenharia reversa de binários sem código-fonte**.
+**TuringOS** e um mini sistema operacional educacional inspirado em Unix, desenvolvido em **C freestanding** e **Assembly x86**, com foco na disciplina de **Interface Hardware/Software**.
 
-O projeto é carregado pelo **GRUB**, executado em ambiente virtualizado com **QEMU** e construído de forma incremental, partindo de um kernel mínimo até uma estrutura mais organizada com driver VGA, terminal, shell, teclado, interrupções e documentação técnica.
+O projeto demonstra, na pratica, conceitos fundamentais de baixo nivel: boot, GRUB/Multiboot, entrada em Assembly, kernel em C, linker script, acesso direto a memoria VGA, terminal, shell, leitura de teclado PS/2, automacao com Makefile, QEMU, GDB, Git/GitHub e engenharia reversa de binarios.
 
 ---
 
 ## Status atual
 
-Versão atual do projeto:
+Versao atual do projeto:
 
 ```text
-v0.1 — Kernel mínimo inicializável
-Status: concluído
+v0.4 - Shell interativo com teclado PS/2 por polling
 ```
 
-A versão atual já realiza o fluxo básico de inicialização:
+Versoes concluidas:
+
+| Versao | Nome | Status | Resumo |
+|---|---|---|---|
+| v0.1 | Kernel minimo | Concluido | Boot via GRUB, entrada em Assembly, kernel em C e escrita na VGA. |
+| v0.2 | Driver VGA e terminal | Concluido | Separacao entre driver VGA, terminal e kernel. |
+| v0.3 | Shell basico | Concluido | Prompt `turingos>` e comandos internos. |
+| v0.4 | Teclado PS/2 por polling | Concluido | Comandos digitados no QEMU com Enter e Backspace. |
+| v0.5 | Interrupcoes | Proximo | IDT, ISR, IRQ, PIC, IRQ0 e IRQ1. |
+
+> Observacao: o teclado atual funciona por **polling**. A proxima etapa e implementar interrupcoes reais usando IDT, IRQ e PIC.
+
+---
+
+## Funcionalidades atuais
+
+O TuringOS ja possui:
+
+- Boot via GRUB/Multiboot;
+- Entrada inicial em Assembly x86;
+- Kernel em C freestanding;
+- Linker script proprio;
+- Escrita direta na memoria VGA `0xB8000`;
+- Driver VGA modular;
+- Terminal basico;
+- Controle de linhas, cores e limpeza de tela;
+- Shell interativo;
+- Comandos internos;
+- Teclado PS/2 por polling;
+- Build automatizado com Makefile;
+- Execucao no QEMU;
+- Organizacao por issues, branches e Kanban.
+
+---
+
+## Comandos da shell
+
+Ao executar o sistema no QEMU, o prompt principal e:
+
+```text
+turingos>
+```
+
+Comandos disponiveis:
+
+| Comando | Funcao |
+|---|---|
+| `help` | Lista os comandos disponiveis. |
+| `clear` | Limpa a tela. |
+| `about` | Mostra informacoes sobre o projeto. |
+| `version` | Mostra a versao atual do TuringOS. |
+| `hardware` | Mostra informacoes basicas de hardware/ambiente. |
+| `halt` | Para a execucao do kernel. |
+
+---
+
+## Arquitetura atual
+
+Fluxo de inicializacao:
 
 ```text
 QEMU
- ↓
+  ↓
 GRUB
- ↓
+  ↓
 boot/boot.asm
- ↓
+  ↓
 kernel_main()
- ↓
-VGA text mode
+  ↓
+VGA text mode + terminal
+  ↓
+keyboard PS/2 polling
+  ↓
+shell interativo
 ```
 
-Funcionalidades já implementadas:
+Camadas principais:
 
-* Boot via GRUB;
-* Cabeçalho Multiboot em Assembly;
-* Entrada inicial em `boot.asm`;
-* Configuração manual da pilha;
-* Chamada de código C a partir do Assembly;
-* Kernel mínimo em C;
-* Escrita direta na memória VGA em `0xB8000`;
-* Script de linkedição com `linker.ld`;
-* Configuração do GRUB em `grub.cfg`;
-* Makefile para build, ISO e execução no QEMU;
-* Execução bem-sucedida no QEMU.
-
-Mensagem exibida atualmente no QEMU:
-
-```text
-TuringOS v0.1 - Kernel loaded successfully.
-```
+| Camada | Responsabilidade | Arquivos |
+|---|---|---|
+| Boot | Cabecalho Multiboot, pilha e entrada do kernel | `boot/boot.asm` |
+| Kernel | Inicializacao geral | `kernel/kernel.c` |
+| VGA | Escrita direta em video | `include/vga.h`, `kernel/vga.c` |
+| Terminal | Abstracao de saida textual | `include/terminal.h`, `kernel/terminal.c` |
+| Teclado | Leitura PS/2 por polling | `include/keyboard.h`, `kernel/keyboard.c` |
+| Shell | Prompt e comandos internos | `include/shell.h`, `kernel/shell.c` |
 
 ---
 
-## Objetivo do projeto
-
-O objetivo principal do TuringOS é demonstrar, de forma prática e didática, como software de baixo nível interage diretamente com o hardware.
-
-O projeto busca responder perguntas como:
-
-* Como um kernel é carregado?
-* Qual é o papel de um bootloader?
-* Por que Assembly ainda é necessário em sistemas operacionais?
-* Como o C pode ser usado sem sistema operacional?
-* Como escrever diretamente na memória de vídeo?
-* Como gerar um binário inicializável?
-* Como depurar um kernel com QEMU e GDB?
-* Como analisar um binário sem depender do código-fonte?
-
----
-
-## Relação com Interface Hardware/Software
-
-O TuringOS atende aos principais pontos estudados na disciplina de Interface Hardware/Software, incluindo:
-
-| Requisito                           | Como o TuringOS atende                                             |
-| ----------------------------------- | ------------------------------------------------------------------ |
-| Interface direta com hardware       | Escrita direta na memória VGA em `0xB8000`                         |
-| Código Assembly                     | Entrada inicial em `boot/boot.asm`                                 |
-| Código de máquina/binário           | Geração de `turingos.bin` e `turingos.iso`                         |
-| Gerenciamento de dispositivo        | Driver VGA e, futuramente, teclado PS/2                            |
-| Engenharia reversa sem código-fonte | Análise do binário com `objdump`, `readelf`, `hexdump` e `ndisasm` |
-| Depuração/prototipação virtual      | Execução com QEMU e depuração com GDB                              |
-| Planejamento semanal                | Organização por versões, issues, milestones e Kanban               |
-| Versionamento                       | Uso de Git, branches, commits e Pull Requests                      |
-
----
-
-## Tecnologias utilizadas
-
-* C freestanding;
-* Assembly x86 com NASM;
-* GRUB;
-* Multiboot;
-* Linker script;
-* GCC 32 bits;
-* GNU LD;
-* Makefile;
-* QEMU;
-* GDB;
-* Git e GitHub;
-* WSL/Linux.
-
----
-
-## Estrutura atual do projeto
+## Estrutura do projeto
 
 ```text
 TuringOS/
 ├── boot/
 │   └── boot.asm
+├── include/
+│   ├── keyboard.h
+│   ├── shell.h
+│   ├── terminal.h
+│   └── vga.h
 ├── kernel/
-│   └── kernel.c
+│   ├── kernel.c
+│   ├── keyboard.c
+│   ├── shell.c
+│   ├── terminal.c
+│   └── vga.c
 ├── iso/
 │   └── boot/
 │       └── grub/
 │           └── grub.cfg
 ├── docs/
 │   └── pdf/
-│       └── TuringOS_Plano_Desenvolvimento_Completo.pdf
-├── include/
 ├── scripts/
 ├── Makefile
 ├── linker.ld
-├── README.md
-└── LICENSE
+└── README.md
 ```
 
 ---
 
-## Principais arquivos
+## Dependencias
 
-### `boot/boot.asm`
+Ambiente recomendado: **WSL2 Ubuntu** ou Linux nativo.
 
-Arquivo Assembly responsável pela entrada inicial do kernel.
-
-Ele contém:
-
-* Cabeçalho Multiboot;
-* Definição do ponto de entrada `start`;
-* Configuração da pilha;
-* Chamada para `kernel_main`;
-* Loop final de segurança.
-
-### `kernel/kernel.c`
-
-Arquivo inicial do kernel em C.
-
-Atualmente ele:
-
-* Limpa a tela VGA;
-* Escreve uma mensagem diretamente na memória de vídeo;
-* Demonstra a execução de código C sem sistema operacional.
-
-### `linker.ld`
-
-Script de linkedição responsável por organizar o kernel na memória.
-
-Ele define:
-
-* Ponto de entrada;
-* Endereço inicial em `1M`;
-* Seções `.multiboot`, `.text`, `.rodata`, `.data` e `.bss`.
-
-### `iso/boot/grub/grub.cfg`
-
-Arquivo de configuração do GRUB.
-
-Ele informa ao GRUB que deve carregar:
-
-```text
-/boot/turingos.bin
-```
-
-como kernel Multiboot.
-
-### `Makefile`
-
-Automatiza o processo de:
-
-* Montagem do Assembly;
-* Compilação do C;
-* Linkedição do kernel;
-* Geração da ISO;
-* Execução no QEMU;
-* Limpeza dos arquivos gerados.
-
----
-
-## Ambiente de desenvolvimento
-
-O ambiente recomendado é Linux ou WSL.
-
-### Instalação das dependências
-
-No WSL/Ubuntu:
+Instalacao das ferramentas:
 
 ```bash
 sudo apt update
-sudo apt install -y build-essential nasm make gcc-multilib binutils qemu-system-x86 qemu-system-gui qemu-utils grub-pc-bin grub-common xorriso mtools gdb git
+sudo apt install -y build-essential nasm make gcc-multilib binutils \
+  qemu-system-x86 qemu-system-gui qemu-utils grub-pc-bin grub-common \
+  xorriso mtools gdb git gh
 ```
 
-### Verificação das ferramentas
+Verificacao:
 
 ```bash
 gcc --version
-make --version
 nasm -v
-ld --version
+make --version
 qemu-system-i386 --version
 grub-mkrescue --version
 gdb --version
@@ -214,76 +161,33 @@ git --version
 
 ---
 
-## Como compilar
+## Como compilar e executar
 
 Na raiz do projeto:
 
 ```bash
 make clean
 make
-```
-
-Esse comando gera:
-
-```text
-build/turingos.bin
-```
-
-e copia o kernel para:
-
-```text
-iso/boot/turingos.bin
-```
-
----
-
-## Como verificar o kernel Multiboot
-
-```bash
 make check
-```
-
-Resultado esperado:
-
-```text
-Kernel reconhecido como Multiboot.
-```
-
----
-
-## Como gerar a ISO
-
-```bash
 make iso
-```
-
-A ISO será gerada em:
-
-```text
-build/turingos.iso
-```
-
----
-
-## Como executar no QEMU
-
-```bash
 make run
 ```
 
-Resultado esperado:
+Significado dos comandos:
 
-```text
-TuringOS v0.1 - Kernel loaded successfully.
-```
+| Comando | Funcao |
+|---|---|
+| `make` | Compila Assembly e C, gerando o binario do kernel. |
+| `make check` | Verifica compatibilidade Multiboot. |
+| `make iso` | Gera a ISO bootavel. |
+| `make run` | Executa o TuringOS no QEMU. |
+| `make clean` | Remove arquivos gerados. |
 
 ---
 
-## Como depurar com QEMU e GDB
+## Depuracao com QEMU/GDB
 
-O projeto será documentado para permitir depuração com QEMU e GDB.
-
-Execução em modo debug:
+Fluxo recomendado:
 
 ```bash
 make debug
@@ -293,279 +197,104 @@ Em outro terminal:
 
 ```bash
 gdb build/turingos.bin
+(gdb) target remote localhost:1234
+(gdb) break kernel_main
+(gdb) continue
+(gdb) info registers
+(gdb) x/16xw 0xB8000
 ```
-
-Dentro do GDB:
-
-```gdb
-target remote localhost:1234
-break kernel_main
-continue
-```
-
-Essa etapa será expandida na documentação de depuração.
 
 ---
 
-## Engenharia reversa sem código-fonte
+## Engenharia reversa sem codigo-fonte
 
-Um dos objetivos do projeto é demonstrar análise de binários gerados pelo kernel sem depender diretamente do código-fonte.
-
-Ferramentas previstas:
-
-```text
-objdump
-readelf
-hexdump
-xxd
-ndisasm
-strings
-```
-
-Exemplos de comandos:
+Comandos recomendados para analisar o binario:
 
 ```bash
-objdump -d build/turingos.bin
+make clean
+make
+file build/turingos.bin
 readelf -h build/turingos.bin
+readelf -S build/turingos.bin
+objdump -d build/turingos.bin | less
 hexdump -C build/turingos.bin | head
 strings build/turingos.bin
+ndisasm -b 32 build/turingos.bin | head
 ```
 
-Atividades esperadas:
-
-* Identificar o ponto de entrada do kernel;
-* Identificar seções do binário;
-* Localizar strings no binário;
-* Observar instruções Assembly geradas;
-* Comparar código C com Assembly produzido;
-* Documentar o comportamento do binário sem consultar o código-fonte.
+Esses comandos permitem identificar formato do binario, secoes, simbolos, strings e trechos em Assembly sem consultar diretamente o codigo-fonte.
 
 ---
 
 ## Roadmap
 
-| Versão | Nome                           | Objetivo                                       | Status    |
-| ------ | ------------------------------ | ---------------------------------------------- | --------- |
-| v0.1   | Kernel mínimo                  | Inicializar kernel via GRUB e escrever na VGA  | Concluído |
-| v0.2   | Driver VGA e terminal          | Organizar saída de vídeo em módulos            | Próximo   |
-| v0.3   | Interface textual inicial      | Criar tela inicial mais apresentável           | Planejado |
-| v0.4   | Shell básico                   | Criar comandos internos simples                | Planejado |
-| v0.5   | Teclado PS/2                   | Ler entrada do teclado                         | Planejado |
-| v0.6   | Interrupções                   | Criar IDT, ISR, IRQ e PIC                      | Planejado |
-| v0.7   | Timer PIT                      | Adicionar noção de tempo/ticks                 | Planejado |
-| v0.8   | Biblioteca do kernel           | Criar funções próprias de string e memória     | Planejado |
-| v0.9   | Depuração e engenharia reversa | Documentar QEMU, GDB e análise binária         | Planejado |
-| v1.0   | Entrega final                  | Consolidar código, documentação e apresentação | Planejado |
+| Versao | Objetivo | Status |
+|---|---|---|
+| v0.1 | Kernel minimo inicializavel | Concluido |
+| v0.2 | Driver VGA e terminal | Concluido |
+| v0.3 | Shell basico | Concluido |
+| v0.4 | Teclado PS/2 por polling | Concluido |
+| v0.5 | Interrupcoes, IDT, ISR, IRQ e PIC | Proximo |
+| v0.6 | Timer PIT | Planejado |
+| v0.7 | Biblioteca interna do kernel | Planejado |
+| v0.8 | Depuracao e engenharia reversa | Planejado |
+| v0.9 | Consolidacao tecnica | Planejado |
+| v1.0 | Entrega final | Planejado |
 
 ---
 
-## Próxima etapa: v0.2 — Driver VGA e terminal
+## Proxima etapa: v0.5 - Interrupcoes
 
-A próxima etapa será transformar o código VGA simples em uma estrutura modular.
-
-Estrutura planejada:
-
-```text
-include/
-├── drivers/
-│   └── vga.h
-├── kernel/
-│   └── terminal.h
-└── lib/
-    └── types.h
-
-kernel/
-├── main.c
-├── drivers/
-│   └── vga.c
-└── terminal/
-    └── terminal.c
-```
-
-Objetivos da v0.2:
-
-* Criar driver VGA separado;
-* Criar camada de terminal;
-* Controlar linha e coluna;
-* Implementar quebra de linha;
-* Implementar limpeza de tela;
-* Implementar cores;
-* Criar funções `terminal_write` e `terminal_writeln`;
-* Atualizar o Makefile para múltiplos arquivos C.
-
-Resultado visual esperado:
-
-```text
-TuringOS v0.2
-Kernel initialized successfully.
-
-Bootloader : GRUB / Multiboot
-Kernel     : C + Assembly x86
-Video      : VGA text mode
-Status     : OK
-```
-
-Melhorias possíveis da etapa:
-
-* Scroll de tela;
-* Cursor visual;
-* Tema de cores;
-* Mensagens com prefixos `[OK]`, `[INFO]`, `[WARN]`;
-* Tela inicial formatada com bordas;
-* Logs de inicialização.
-
----
-
-## Futuras funcionalidades
-
-Após a versão inicial, o TuringOS poderá evoluir com:
-
-* Shell interativo;
-* Driver de teclado PS/2;
-* Leitura de scancodes;
-* Interrupções;
-* Timer PIT;
-* Biblioteca própria de strings;
-* Funções de memória;
-* `kprintf` simplificado;
-* Sistema de arquivos em RAM;
-* Gerenciamento de memória;
-* Chamadas de sistema conceituais;
-* Driver serial;
-* Interface textual avançada;
-* Modo gráfico experimental via framebuffer.
-
----
-
-## Melhorias futuras
-
-Possíveis melhorias técnicas:
-
-* Separar permissões de segmentos no `linker.ld`;
-* Corrigir aviso de `.note.GNU-stack`;
-* Criar scripts auxiliares em `scripts/`;
-* Criar GitHub Actions para validar build;
-* Criar releases versionadas;
-* Criar tags `v0.1`, `v0.2`, `v1.0`;
-* Criar GIF ou vídeo de demonstração;
-* Criar documentação específica para cada módulo;
-* Criar diagramas de arquitetura e fluxo de boot.
-
-Possíveis melhorias acadêmicas:
-
-* Explicar o papel do Assembly no boot;
-* Explicar o funcionamento do GRUB;
-* Explicar o padrão Multiboot;
-* Explicar como o C funciona em ambiente freestanding;
-* Demonstrar a diferença entre aplicação comum e kernel;
-* Demonstrar análise de binário sem código-fonte;
-* Comparar conceitos do TuringOS com Linux/Unix.
-
----
-
-## Documentação
-
-A documentação completa do projeto está disponível em:
-
-```text
-docs/pdf/TuringOS_Plano_Desenvolvimento_Completo.pdf
-```
-
-Ela contém:
-
-* Visão geral do projeto;
-* Objetivos;
-* Aderência aos requisitos da disciplina;
-* Plano de execução;
-* Roadmap;
-* Melhorias por etapa;
-* Riscos;
-* Estratégia de commits;
-* Melhorias futuras;
-* Organização do Kanban;
-* Guia de continuidade.
-
----
-
-## Fluxo de desenvolvimento
-
-Fluxo recomendado:
+A proxima branch recomendada:
 
 ```bash
 git switch main
 git pull origin main
-git switch -c feature/nome-da-funcionalidade
+git switch -c feature/interrupts
 ```
 
-Após implementar:
+Objetivos da v0.5:
 
-```bash
-git status
-git add arquivos_alterados
-git commit -m "tipo: descrição da mudança"
-git push -u origin feature/nome-da-funcionalidade
-```
-
-Depois, abrir Pull Request no GitHub e fazer merge na `main`.
+- Criar IDT;
+- Criar stubs Assembly;
+- Criar handlers em C;
+- Remapear PIC;
+- Enviar EOI ao PIC;
+- Preparar IRQ0 para timer;
+- Preparar IRQ1 para teclado;
+- Usar `iret`/`iretd` para retorno correto das interrupcoes.
 
 ---
 
-## Convenção de commits
+## Relacao com a disciplina
 
-Sugestões:
-
-```text
-feat: nova funcionalidade
-fix: correção de erro
-docs: alteração de documentação
-chore: tarefa de manutenção
-refactor: melhoria interna sem mudar comportamento
-test: testes ou validações
-build: mudanças no processo de build
-```
-
-Exemplos:
-
-```text
-feat: add VGA text mode driver
-feat: add terminal abstraction
-feat: add basic shell commands
-docs: add reverse engineering guide
-docs: update development plan
-chore: update Makefile targets
-```
+| Requisito | Atendimento no TuringOS |
+|---|---|
+| Interface direta com hardware | VGA `0xB8000` e portas PS/2 `0x64`/`0x60`. |
+| Codigo Assembly | `boot/boot.asm`. |
+| Geracao de binario | `turingos.bin` e `turingos.iso`. |
+| Dispositivo/driver | Driver VGA e teclado PS/2 inicial. |
+| Prototipacao virtual | QEMU. |
+| Depuracao | QEMU + GDB. |
+| Engenharia reversa | `objdump`, `readelf`, `hexdump`, `strings`, `ndisasm`. |
+| Kanban | GitHub Project com issues por etapa. |
+| Versionamento | Git, branches, commits, PRs e tags. |
 
 ---
 
-## Limitações atuais
+## Observacoes tecnicas
 
-A versão atual ainda é simples e possui limitações importantes:
-
-* Não há driver VGA modular;
-* Não há terminal com cursor;
-* Não há entrada de teclado;
-* Não há shell interativo;
-* Não há interrupções;
-* Não há timer;
-* Não há gerenciamento de memória;
-* Não há sistema de arquivos;
-* Não há modo usuário;
-* Não há execução de programas externos.
-
-Essas limitações são esperadas na versão `v0.1`. O projeto será evoluído gradualmente.
-
----
-
-## Licença
-
-Este projeto é educacional e pode ser distribuído conforme a licença definida no arquivo `LICENSE`.
+- O TuringOS ainda nao possui modo usuario;
+- Ainda nao possui sistema de arquivos;
+- Ainda nao possui gerenciamento de memoria avancado;
+- Ainda nao usa interrupcoes reais para teclado;
+- Ainda nao possui timer PIT;
+- Essas limitacoes sao esperadas na v0.4 e fazem parte do roadmap.
 
 ---
 
 ## Autor
 
-**Joseph Antony**
+Joseph Antony
 
-Projeto desenvolvido para fins acadêmicos na área de Interface Hardware/Software, Sistemas Operacionais e Programação de Baixo Nível.
-
-GitHub: `thejosephantony`
+Projeto academico de Interface Hardware/Software.
