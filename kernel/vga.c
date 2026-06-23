@@ -31,6 +31,12 @@ void vga_set_cursor(size_t x, size_t y) {
 
     outb(0x3D4, 0x0E);
     outb(0x3D5, (uint8_t)((position >> 8) & 0xFF));
+
+    // Habilitar cursor e definir formato (linha de início e fim)
+    outb(0x3D4, 0x0A);          // registrador de início do cursor
+    outb(0x3D5, 0x0D);          // começa na linha 13 (bloco grande)
+    outb(0x3D4, 0x0B);          // registrador de fim do cursor
+    outb(0x3D5, 0x0E);          // termina na linha 14 (sublinhado)
 }
 
 void vga_get_cursor(size_t* x, size_t* y) {

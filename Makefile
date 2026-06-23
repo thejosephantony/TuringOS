@@ -17,8 +17,10 @@ BOOT_OBJ = $(BUILD_DIR)/boot.o
 KERNEL_OBJ = $(BUILD_DIR)/kernel.o
 VGA_OBJ = $(BUILD_DIR)/vga.o
 TERMINAL_OBJ = $(BUILD_DIR)/terminal.o
+SHELL_OBJ = $(BUILD_DIR)/shell.o
+KEYBOARD_OBJ = $(BUILD_DIR)/keyboard.o
 
-OBJECTS = $(BOOT_OBJ) $(KERNEL_OBJ) $(VGA_OBJ) $(TERMINAL_OBJ)
+OBJECTS = $(BOOT_OBJ) $(KERNEL_OBJ) $(VGA_OBJ) $(TERMINAL_OBJ) $(SHELL_OBJ) $(KEYBOARD_OBJ)
 
 CFLAGS = -m32 -Iinclude -ffreestanding -fno-builtin -fno-pic -fno-pie -fno-stack-protector -nostdlib -Wall -Wextra
 LDFLAGS = -m elf_i386 -T linker.ld -nostdlib
@@ -41,6 +43,12 @@ $(VGA_OBJ): kernel/vga.c include/vga.h | $(BUILD_DIR)
 
 $(TERMINAL_OBJ): kernel/terminal.c include/terminal.h include/vga.h | $(BUILD_DIR)
 >$(CC) $(CFLAGS) -c kernel/terminal.c -o $(TERMINAL_OBJ)
+
+$(SHELL_OBJ): kernel/shell.c include/shell.h include/terminal.h include/keyboard.h | $(BUILD_DIR)
+>$(CC) $(CFLAGS) -c kernel/shell.c -o $(SHELL_OBJ)
+
+$(KEYBOARD_OBJ): kernel/keyboard.c include/keyboard.h | $(BUILD_DIR)
+>$(CC) $(CFLAGS) -c kernel/keyboard.c -o $(KEYBOARD_OBJ)
 
 $(KERNEL_BIN): $(OBJECTS)
 >$(LD) $(LDFLAGS) -o $(KERNEL_BIN) $(OBJECTS)
