@@ -4,7 +4,7 @@
 static void kernel_print_banner(void) {
     terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
     terminal_writeln("============================================================");
-    terminal_writeln("                         TuringOS v0.2                       ");
+    terminal_writeln("                         TuringOS v0.4                       ");
     terminal_writeln("              Educational Unix-like Kernel                   ");
     terminal_writeln("============================================================");
 
@@ -33,9 +33,13 @@ void kernel_main(void) {
     kernel_print_banner();
     kernel_print_status();
 
-    terminal_set_color(vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
-    terminal_writestring("turingos> ");
+    //terminal_set_color(vga_entry_color(VGA_COLOR_WHITE, VGA_COLOR_BLACK));
+    //terminal_writestring("turingos> ");
 
+    // Inicia a shell (nunca retorna)
+    shell_run();
+
+    // (nunca chega aqui)
     while (1) {
         __asm__ volatile ("hlt");
     }
