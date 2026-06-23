@@ -1,21 +1,45 @@
 #include "shell.h"
 #include "terminal.h"
-#include "keyboard.h"   // para ler caracteres
+#include "keyboard.h"
 #include <stddef.h>
 
 #define MAX_CMD_LEN 64
 
 static const char* prompt = "turingos> ";
 
-// Comandos internos
+/*
+ * Comparacao simples de strings.
+ *
+ * Como o kernel ainda nao usa a biblioteca padrao do C,
+ * nao usamos strcmp(). Esta funcao sera substituida futuramente
+ * por uma biblioteca propria do kernel.
+ */
+static int shell_string_equals(const char* a, const char* b) {
+    size_t i = 0;
+
+    while (a[i] != '\0' && b[i] != '\0') {
+        if (a[i] != b[i]) {
+            return 0;
+        }
+
+        i++;
+    }
+
+    return a[i] == '\0' && b[i] == '\0';
+}
+
+/*
+ * Comandos internos da shell.
+ */
 
 static void cmd_help(void) {
     terminal_writeln("Comandos disponiveis:");
-    terminal_writeln("  help    - show this message");
-    terminal_writeln("  clear   - clean the screen");
-    terminal_writeln("  about   - system information");
-    terminal_writeln("  version - kernel version");
-    terminal_writeln("  halt    - turn off the system");
+    terminal_writeln("  help     - show this message");
+    terminal_writeln("  clear    - clean the screen");
+    terminal_writeln("  about    - system information");
+    terminal_writeln("  version  - kernel version");
+    terminal_writeln("  hardware - show hardware information");
+    terminal_writeln("  halt     - stop the system");
 }
 
 static void cmd_clear(void) {
@@ -24,35 +48,48 @@ static void cmd_clear(void) {
 
 static void cmd_about(void) {
     terminal_writeln("TuringOS is a mini educational operating system inspired by Unix,");
-    terminal_writeln("developed in C and x86 Assembly, with a focus on Hardware/Software Interface.");
+    terminal_writeln("developed in C and x86 Assembly, with focus on Hardware/Software Interface.");
 }
 
 static void cmd_version(void) {
-    terminal_writeln("TuringOS v0.4 (basic shell)");
+    terminal_writeln("TuringOS v0.4 - Interactive shell with PS/2 keyboard polling");
+}
+
+static void cmd_hardware(void) {
+    terminal_writeln("Hardware information:");
+    terminal_writeln("  Architecture : x86 32-bit");
+    terminal_writeln("  Bootloader   : GRUB / Multiboot");
+    terminal_writeln("  Kernel       : C + Assembly x86");
+    terminal_writeln("  Video        : VGA text mode");
+    terminal_writeln("  Keyboard     : PS/2 polling");
+    terminal_writeln("  Execution    : QEMU");
 }
 
 static void cmd_halt(void) {
-    terminal_writeln("Shutting down...");
+    terminal_writeln("System halted.");
+
     while (1) {
         __asm__ volatile ("hlt");
     }
 }
 
-// Executa um comando (string sem \n)
-
+/*
+ * Executa um comando digitado pelo usuario.
+ */
 static void shell_execute(const char* cmd) {
-    // Comparação simples (strcmp será implementado na v0.8)
-    if (cmd[0] == 'h' && cmd[1] == 'e' && cmd[2] == 'l' && cmd[3] == 'p' && cmd[4] == '\0')
+    if (shell_string_equals(cmd, "help")) {
         cmd_help();
-    else if (cmd[0] == 'c' && cmd[1] == 'l' && cmd[2] == 'e' && cmd[3] == 'a' && cmd[4] == 'r' && cmd[5] == '\0')
+    } else if (shell_string_equals(cmd, "clear")) {
         cmd_clear();
-    else if (cmd[0] == 'a' && cmd[1] == 'b' && cmd[2] == 'o' && cmd[3] == 'u' && cmd[4] == 't' && cmd[5] == '\0')
+    } else if (shell_string_equals(cmd, "about")) {
         cmd_about();
-    else if (cmd[0] == 'v' && cmd[1] == 'e' && cmd[2] == 'r' && cmd[3] == 's' && cmd[4] == 'i' && cmd[5] == 'o' && cmd[6] == 'n' && cmd[7] == '\0')
+    } else if (shell_string_equals(cmd, "version")) {
         cmd_version();
-    else if (cmd[0] == 'h' && cmd[1] == 'a' && cmd[2] == 'l' && cmd[3] == 't' && cmd[4] == '\0')
+    } else if (shell_string_equals(cmd, "hardware")) {
+        cmd_hardware();
+    } else if (shell_string_equals(cmd, "halt")) {
         cmd_halt();
-    else {
+    } else {
         terminal_writestring("Unknown command: ");
         terminal_writestring(cmd);
         terminal_writeln("");
@@ -60,48 +97,57 @@ static void shell_execute(const char* cmd) {
     }
 }
 
-// Loop principal da shell
-
+/*
+ * Loop principal da shell.
+ */
 void shell_run(void) {
     char buffer[MAX_CMD_LEN];
     size_t pos = 0;
 
     terminal_writeln("Welcome to TuringOS!");
-    terminal_writeln("Type 'help' for available commands.\n");
+    terminal_writeln("Type 'help' for available commands.");
+    terminal_writeln("");
 
     while (1) {
-        // Exibe o prompt
         terminal_writestring(prompt);
 
-        // Limpa o buffer
         pos = 0;
         buffer[0] = '\0';
 
-        // Lê caracteres até Enter
         while (1) {
             char c = keyboard_read_char();
-            if (c == 0) continue;   // tecla solta ou inválida
 
-            if (c == '\n') {
+            if (c == 0) {
+                continue;
+            }
+
+            if (c == '\n' || c == '\r') {
                 terminal_putchar('\n');
                 break;
-            } else if (c == '\b') {
+            }
+
+            if (c == '\b') {
                 if (pos > 0) {
                     pos--;
+                    buffer[pos] = '\0';
                     terminal_putchar('\b');
                 }
-            } else if (pos < MAX_CMD_LEN - 1) {
-                buffer[pos++] = c;
+
+                continue;
+            }
+
+            if (pos < MAX_CMD_LEN - 1) {
+                buffer[pos] = c;
+                pos++;
+                buffer[pos] = '\0';
                 terminal_putchar(c);
             }
         }
 
-        buffer[pos] = '\0';
+        if (pos == 0) {
+            continue;
+        }
 
-        // Se não digitou nada, continua
-        if (pos == 0) continue;
-
-        // Executa o comando
         shell_execute(buffer);
     }
 }

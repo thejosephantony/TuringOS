@@ -1,5 +1,6 @@
 #include "terminal.h"
 #include "vga.h"
+#include "shell.h"
 
 static void kernel_print_banner(void) {
     terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
