@@ -52,7 +52,7 @@ static void cmd_about(void) {
 }
 
 static void cmd_version(void) {
-    terminal_writeln("TuringOS v0.4 - Interactive shell with PS/2 keyboard polling");
+    terminal_writeln("TuringOS v0.5 - Interrupt-driven kernel with IDT, PIC, Timer and Keyboard");
 }
 
 static void cmd_hardware(void) {
@@ -61,7 +61,8 @@ static void cmd_hardware(void) {
     terminal_writeln("  Bootloader   : GRUB / Multiboot");
     terminal_writeln("  Kernel       : C + Assembly x86");
     terminal_writeln("  Video        : VGA text mode");
-    terminal_writeln("  Keyboard     : PS/2 polling");
+    terminal_writeln("  Keyboard     : PS/2 interrupt-driven (IRQ1)");
+    terminal_writeln("  Timer        : PIT (IRQ0)");
     terminal_writeln("  Execution    : QEMU");
 }
 
@@ -132,7 +133,6 @@ void shell_run(void) {
                     buffer[pos] = '\0';
                     terminal_putchar('\b');
                 }
-
                 continue;
             }
 
