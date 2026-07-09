@@ -1,3 +1,4 @@
+#include "timer.h"
 #include "port.h"
 #include "terminal.h"
 #include "vga.h"
@@ -46,11 +47,13 @@ void kernel_main(void) {
 
     // Inicializa teclado (habilita IRQ1)
     outb(0x64, 0xAE);
+    timer_init(100);
     keyboard_init();
 
     // Exibe banner e status
     kernel_print_banner();
     kernel_print_status();
+
 
     // Habilita interrupções
     __asm__ volatile ("sti");
