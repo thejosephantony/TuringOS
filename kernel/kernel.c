@@ -11,7 +11,7 @@
 static void kernel_print_banner(void) {
     terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_CYAN, VGA_COLOR_BLACK));
     terminal_writeln("============================================================");
-    terminal_writeln("                         TuringOS v0.5                       ");
+    terminal_writeln("                         TuringOS v0.6-dev                       ");
     terminal_writeln("              Educational Unix-like Kernel                   ");
     terminal_writeln("============================================================");
     terminal_set_color(vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK));
