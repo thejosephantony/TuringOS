@@ -146,3 +146,5 @@ extern idt_ptr
 idt_load:
     lidt [idt_ptr]
     ret
+; Informa ao linker que este objeto não exige pilha executável.
+section .note.GNU-stack noalloc noexec nowrite progbits
