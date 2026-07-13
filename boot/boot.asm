@@ -85,3 +85,5 @@ start:
     cli
     hlt
     jmp .hang
+; Informa ao linker que este objeto não exige pilha executável.
+section .note.GNU-stack noalloc noexec nowrite progbits
