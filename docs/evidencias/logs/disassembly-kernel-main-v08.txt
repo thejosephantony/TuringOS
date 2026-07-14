@@ -1,0 +1,38 @@
+00101201 <kernel_main>:
+  101201:	55                   	push   ebp
+  101202:	89 e5                	mov    ebp,esp
+  101204:	83 ec 08             	sub    esp,0x8
+  101207:	e8 5d 03 00 00       	call   101569 <terminal_initialize>
+  10120c:	e8 73 14 00 00       	call   102684 <idt_init>
+  101211:	83 ec 08             	sub    esp,0x8
+  101214:	6a 28                	push   0x28
+  101216:	6a 20                	push   0x20
+  101218:	e8 10 17 00 00       	call   10292d <pic_remap>
+  10121d:	83 c4 10             	add    esp,0x10
+  101220:	83 ec 08             	sub    esp,0x8
+  101223:	68 ff 00 00 00       	push   0xff
+  101228:	6a 21                	push   0x21
+  10122a:	e8 19 fe ff ff       	call   101048 <outb>
+  10122f:	83 c4 10             	add    esp,0x10
+  101232:	83 ec 08             	sub    esp,0x8
+  101235:	68 ff 00 00 00       	push   0xff
+  10123a:	68 a1 00 00 00       	push   0xa1
+  10123f:	e8 04 fe ff ff       	call   101048 <outb>
+  101244:	83 c4 10             	add    esp,0x10
+  101247:	83 ec 08             	sub    esp,0x8
+  10124a:	68 ae 00 00 00       	push   0xae
+  10124f:	6a 64                	push   0x64
+  101251:	e8 f2 fd ff ff       	call   101048 <outb>
+  101256:	83 c4 10             	add    esp,0x10
+  101259:	83 ec 0c             	sub    esp,0xc
+  10125c:	6a 64                	push   0x64
+  10125e:	e8 35 18 00 00       	call   102a98 <timer_init>
+  101263:	83 c4 10             	add    esp,0x10
+  101266:	e8 13 11 00 00       	call   10237e <keyboard_init>
+  10126b:	e8 f7 fd ff ff       	call   101067 <kernel_print_banner>
+  101270:	e8 87 fe ff ff       	call   1010fc <kernel_print_status>
+  101275:	fb                   	sti
+  101276:	e8 1b 0f 00 00       	call   102196 <shell_run>
+  10127b:	f4                   	hlt
+  10127c:	eb fd                	jmp    10127b <kernel_main+0x7a>
+

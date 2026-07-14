@@ -1,0 +1,2 @@
+grub-file --is-x86-multiboot build/turingos.bin
+Kernel reconhecido como Multiboot.

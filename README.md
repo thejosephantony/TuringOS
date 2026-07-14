@@ -9,7 +9,8 @@ O projeto demonstra, de forma incremental, como um kernel é carregado, iniciali
 ## Estado atual
 
 ```text
-Versão atual: v0.7
+Versão atual do projeto: v0.8
+Versão implementada do kernel: v0.7
 Implementação principal: concluída
 Fase atual: documentação, depuração, engenharia reversa e apresentação
 ```
@@ -73,7 +74,7 @@ O projeto foi desenvolvido para estudar e demonstrar:
 | v0.5.1 | Hardening do ELF, linker e pilha não executável | Concluída |
 | v0.6 | `uptime`, `irqinfo`, `debug` e contadores de IRQ | Concluída |
 | v0.7 | Biblioteca interna do kernel e comando `libtest` | Concluída |
-| v0.8 | Documentação de depuração e engenharia reversa | Em andamento |
+| v0.8 | Documentação, depuração e engenharia reversa | Concluída |
 | v1.0 | Consolidação documental, apresentação e entrega | Planejada |
 
 ---

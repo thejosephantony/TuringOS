@@ -1,0 +1,276 @@
+j(j 
+Turi
+ngOS
+j j 
+j6jC
+============================================================
+                         TuringOS v0.7-dev                       
+              Educational Unix-like Kernel                   
+[OK] Kernel initialized successfully
+[OK] VGA text mode driver loaded
+[OK] Terminal abstraction initialized
+[OK] IDT and PIC configured
+[OK] Timer (IRQ0) and Keyboard (IRQ1) enabled
+Bootloader : GRUB / Multiboot
+Kernel     : C + Assembly x86
+Video      : VGA text mode
+Interrupts : Enabled (IRQ0, IRQ1)
+Status     : OK
+turingos> 
+Comandos disponiveis:
+  help     - show this message
+  clear    - clean the screen
+  about    - system information
+  version  - kernel version
+  hardware - show hardware information
+  uptime   - show system uptime and PIT ticks
+  irqinfo  - show IRQ counters and PIC masks
+  debug    - show kernel runtime diagnostics
+  libtest  - test the internal kernel library
+  halt     - stop the system
+TuringOS is a mini educational operating system inspired by Unix,
+developed in C and x86 Assembly, with focus on Hardware/Software Interface.
+TuringOS v0.7-dev - Runtime diagnostics and IRQ counters
+Hardware information:
+  Architecture : x86 32-bit
+  Bootloader   : GRUB / Multiboot
+  Kernel       : C + Assembly x86
+  Video        : VGA text mode
+  Keyboard     : PS/2 interrupt-driven (IRQ1)
+  Timer        : PIT (IRQ0)
+  Execution    : QEMU
+Uptime: 
+ seconds
+PIT ticks: 
+PIT frequency: 
+IRQ information:
+  IRQ0 timer count    : 
+  IRQ1 keyboard count : 
+  PIC master mask     : 
+  PIC slave mask      : 
+  IRQ0 state          : 
+enabled
+masked
+  IRQ1 state          : 
+Kernel debug information:
+  Version            : v0.7-dev
+  Executable format  : ELF32
+  Compilation mode   : freestanding
+  Interrupt flag     : 
+disabled
+  Timer frequency    : 
+  Timer ticks        : 
+  Uptime             : 
+  PIC master mask    : 
+  PIC slave mask     : 
+2026
+Kernel library self-test:
+  kstrlen  : 
+  kmemcpy  : 
+  kutoa 10 : 
+  kutoa 16 : 
+  result    : 
+PASS
+FAIL
+System halted.
+help
+clear
+about
+version
+hardware
+uptime
+irqinfo
+debug
+libtest
+halt
+Unknown command: 
+Type 'help' for a list of commands.
+Welcome to TuringOS!
+Type 'help' for available commands.
+1234567890-=
+	qwertyuiop[]
+asdfghjkl;'`
+\zxcvbnm,./
+ Division By Zero
+Debug
+Non Maskable Interrupt
+Breakpoint
+Into Detected Overflow
+Out of Bounds
+Invalid Opcode
+No Coprocessor
+Double Fault
+Coprocessor Segment Overrun
+Bad TSS
+Segment Not Present
+Stack Fault
+General Protection Fault
+Page Fault
+Unknown Interrupt
+Coprocessor Fault
+Alignment Check
+Machine Check
+Reserved
+EXCEPTION: 
+Unknown
+System Halted.
+0123456789ABCDEF
+boot/boot.asm
+MULTIBOOT_MAGIC
+MULTIBOOT_FLAGS
+MULTIBOOT_CHECKSUM
+stack_bottom
+stack_top
+gdt_start
+gdt_code
+gdt_data
+gdt_end
+gdt_descriptor
+CODE_SEG
+DATA_SEG
+start.reload_cs
+start.hang
+kernel.c
+outb
+kernel_print_banner
+kernel_print_status
+vga.c
+terminal.c
+terminal_row
+terminal_column
+terminal_color
+terminal_buffer
+terminal_scroll
+shell.c
+prompt
+shell_write_uint32
+shell_write_hex8
+shell_read_eflags
+cmd_help
+cmd_clear
+cmd_about
+cmd_version
+cmd_hardware
+cmd_uptime
+cmd_irqinfo
+cmd_debug
+cmd_libtest
+cmd_halt
+shell_execute
+keyboard.c
+key_buffer
+buffer_head
+buffer_tail
+scancode_to_ascii
+table.0
+kernel/interrupt.asm
+isr_common_stub
+irq_common_stub
+idt.c
+isr.c
+irq_handlers
+irq_counts
+exception_messages
+pic.c
+timer.c
+tick_count
+timer_frequency
+timer_callback
+klib.c
+digits.0
+terminal_writeln
+idt_ptr
+isr4
+isr27
+isr13
+kmemset
+irq12
+isr22
+isr15
+irq10
+irq14
+kstrlen
+timer_get_uptime_seconds
+isr9
+irq8
+isr23
+terminal_clear
+isr29
+terminal_writestring
+keyboard_init
+pic_send_eoi
+isr31
+isr21
+irq11
+keyboard_get_irq_count
+isr28
+isr8
+irq5
+keyboard_irq_handler
+isr20
+isr14
+isr5
+vga_get_cursor
+idt_init
+terminal_putchar
+kernel_main
+timer_init
+irq6
+irq1
+vga_putchar_at
+terminal_set_color
+idt_set_gate
+terminal_initialize
+terminal_write
+isr1
+shell_run
+idt_entries
+irq9
+isr26
+isr11
+kstrcmp
+vga_entry
+irq_get_count
+irq13
+isr12
+keyboard_read_char
+vga_set_cursor
+idt_load
+isr0
+irq2
+timer_get_ticks
+kutoa
+isr_handler
+isr24
+isr16
+isr3
+pic_disable
+isr6
+pic_remap
+irq7
+isr18
+keyboard_irq_count
+irq0
+kmemcpy
+isr10
+isr17
+isr2
+isr19
+isr30
+timer_get_frequency
+irq15
+isr7
+isr25
+irq_register_handler
+vga_entry_color
+irq4
+irq3
+isr_routines
+.symtab
+.strtab
+.shstrtab
+.multiboot
+.text
+.rodata
+.data
+.bss

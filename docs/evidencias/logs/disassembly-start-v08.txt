@@ -1,0 +1,10 @@
+0010101e <start>:
+  10101e:	0f 01 15 18 10 10 00 	lgdtd  ds:0x101018
+  101025:	66 b8 10 00          	mov    ax,0x10
+  101029:	8e d8                	mov    ds,eax
+  10102b:	8e c0                	mov    es,eax
+  10102d:	8e e0                	mov    fs,eax
+  10102f:	8e e8                	mov    gs,eax
+  101031:	8e d0                	mov    ss,eax
+  101033:	ea 3a 10 10 00 08 00 	jmp    0x8:0x10103a
+
