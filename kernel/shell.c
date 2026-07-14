@@ -5,6 +5,7 @@
 #include "isr.h"
 #include "pic.h"
 #include "port.h"
+#include "klib.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -14,55 +15,30 @@
 static const char* prompt = "turingos> ";
 
 /*
- * Comparacao simples de strings.
- */
-static int shell_string_equals(const char* a, const char* b) {
-    size_t i = 0;
-
-    while (a[i] != '\0' && b[i] != '\0') {
-        if (a[i] != b[i]) {
-            return 0;
-        }
-
-        i++;
-    }
-
-    return a[i] == '\0' && b[i] == '\0';
-}
-
-/*
  * Escreve um inteiro decimal sem depender da biblioteca padrao.
  */
 static void shell_write_uint32(uint32_t value) {
     char buffer[11];
-    size_t length = 0;
 
-    if (value == 0) {
-        terminal_putchar('0');
-        return;
-    }
-
-    while (value > 0 && length < sizeof(buffer)) {
-        buffer[length] = (char)('0' + (value % 10));
-        length++;
-        value /= 10;
-    }
-
-    while (length > 0) {
-        length--;
-        terminal_putchar(buffer[length]);
-    }
+    kutoa(value, buffer, 10);
+    terminal_writestring(buffer);
 }
 
 /*
  * Escreve um byte no formato hexadecimal 0xFF.
  */
 static void shell_write_hex8(uint8_t value) {
-    static const char digits[] = "0123456789ABCDEF";
+    char buffer[3];
+
+    kutoa(value, buffer, 16);
 
     terminal_writestring("0x");
-    terminal_putchar(digits[(value >> 4) & 0x0F]);
-    terminal_putchar(digits[value & 0x0F]);
+
+    if (value < 16) {
+        terminal_putchar('0');
+    }
+
+    terminal_writestring(buffer);
 }
 
 /*
@@ -90,6 +66,7 @@ static void cmd_help(void) {
     terminal_writeln("  uptime   - show system uptime and PIT ticks");
     terminal_writeln("  irqinfo  - show IRQ counters and PIC masks");
     terminal_writeln("  debug    - show kernel runtime diagnostics");
+    terminal_writeln("  libtest  - test the internal kernel library");
     terminal_writeln("  halt     - stop the system");
 }
 
@@ -108,7 +85,7 @@ static void cmd_about(void) {
 
 static void cmd_version(void) {
     terminal_writeln(
-        "TuringOS v0.6-dev - Runtime diagnostics and IRQ counters"
+        "TuringOS v0.7-dev - Runtime diagnostics and IRQ counters"
     );
 }
 
@@ -180,7 +157,7 @@ static void cmd_debug(void) {
     uint8_t slave_mask = inb(PIC2_DATA);
 
     terminal_writeln("Kernel debug information:");
-    terminal_writeln("  Version            : v0.6-dev");
+    terminal_writeln("  Version            : v0.7-dev");
     terminal_writeln("  Executable format  : ELF32");
     terminal_writeln("  Compilation mode   : freestanding");
 
@@ -210,6 +187,57 @@ static void cmd_debug(void) {
     terminal_writeln("");
 }
 
+
+static void cmd_libtest(void) {
+    const char source[] = "TuringOS";
+
+    char copy[16];
+    char decimal[11];
+    char hexadecimal[9];
+
+    int passed = 1;
+
+    kmemset(copy, 0, sizeof(copy));
+    kmemcpy(copy, source, kstrlen(source) + 1);
+
+    kutoa(2026, decimal, 10);
+    kutoa(0x2A, hexadecimal, 16);
+
+    if (kstrlen(source) != 8) {
+        passed = 0;
+    }
+
+    if (kstrcmp(copy, source) != 0) {
+        passed = 0;
+    }
+
+    if (kstrcmp(decimal, "2026") != 0) {
+        passed = 0;
+    }
+
+    if (kstrcmp(hexadecimal, "2A") != 0) {
+        passed = 0;
+    }
+
+    terminal_writeln("Kernel library self-test:");
+
+    terminal_writestring("  kstrlen  : ");
+    shell_write_uint32((uint32_t)kstrlen(source));
+    terminal_writeln("");
+
+    terminal_writestring("  kmemcpy  : ");
+    terminal_writeln(copy);
+
+    terminal_writestring("  kutoa 10 : ");
+    terminal_writeln(decimal);
+
+    terminal_writestring("  kutoa 16 : ");
+    terminal_writeln(hexadecimal);
+
+    terminal_writestring("  result    : ");
+    terminal_writeln(passed ? "PASS" : "FAIL");
+}
+
 static void cmd_halt(void) {
     terminal_writeln("System halted.");
 
@@ -224,23 +252,25 @@ static void cmd_halt(void) {
  * Executa um comando digitado pelo usuario.
  */
 static void shell_execute(const char* cmd) {
-    if (shell_string_equals(cmd, "help")) {
+    if (kstrcmp(cmd, "help") == 0) {
         cmd_help();
-    } else if (shell_string_equals(cmd, "clear")) {
+    } else if (kstrcmp(cmd, "clear") == 0) {
         cmd_clear();
-    } else if (shell_string_equals(cmd, "about")) {
+    } else if (kstrcmp(cmd, "about") == 0) {
         cmd_about();
-    } else if (shell_string_equals(cmd, "version")) {
+    } else if (kstrcmp(cmd, "version") == 0) {
         cmd_version();
-    } else if (shell_string_equals(cmd, "hardware")) {
+    } else if (kstrcmp(cmd, "hardware") == 0) {
         cmd_hardware();
-    } else if (shell_string_equals(cmd, "uptime")) {
+    } else if (kstrcmp(cmd, "uptime") == 0) {
         cmd_uptime();
-    } else if (shell_string_equals(cmd, "irqinfo")) {
+    } else if (kstrcmp(cmd, "irqinfo") == 0) {
         cmd_irqinfo();
-    } else if (shell_string_equals(cmd, "debug")) {
+    } else if (kstrcmp(cmd, "debug") == 0) {
         cmd_debug();
-    } else if (shell_string_equals(cmd, "halt")) {
+    } else if (kstrcmp(cmd, "libtest") == 0) {
+        cmd_libtest();
+    } else if (kstrcmp(cmd, "halt") == 0) {
         cmd_halt();
     } else {
         terminal_writestring("Unknown command: ");

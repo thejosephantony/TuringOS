@@ -1,20 +1,11 @@
 #include "terminal.h"
 #include "vga.h"
+#include "klib.h"
 
 static size_t terminal_row;
 static size_t terminal_column;
 static uint8_t terminal_color;
 static volatile uint16_t* terminal_buffer;
-
-static size_t terminal_strlen(const char* str) {
-    size_t length = 0;
-
-    while (str[length] != '\0') {
-        length++;
-    }
-
-    return length;
-}
 
 static void terminal_scroll(void) {
     for (size_t y = 1; y < VGA_HEIGHT; y++) {
@@ -97,7 +88,7 @@ void terminal_write(const char* data, size_t size) {
 }
 
 void terminal_writestring(const char* data) {
-    terminal_write(data, terminal_strlen(data));
+    terminal_write(data, kstrlen(data));
 }
 
 void terminal_writeln(const char* data) {
