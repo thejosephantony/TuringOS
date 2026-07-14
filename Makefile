@@ -24,9 +24,9 @@ IDT_OBJ = $(BUILD_DIR)/idt.o
 ISR_OBJ = $(BUILD_DIR)/isr.o
 PIC_OBJ = $(BUILD_DIR)/pic.o
 TIMER_OBJ = $(BUILD_DIR)/timer.o
-KEYBOARD_OBJ = $(BUILD_DIR)/keyboard.o
+KLIB_OBJ = $(BUILD_DIR)/klib.o
 
-OBJECTS = $(BOOT_OBJ) $(KERNEL_OBJ) $(VGA_OBJ) $(TERMINAL_OBJ) $(SHELL_OBJ) $(KEYBOARD_OBJ) $(INTERRUPT_OBJ) $(IDT_OBJ) $(ISR_OBJ) $(PIC_OBJ) $(TIMER_OBJ)
+OBJECTS = $(BOOT_OBJ) $(KERNEL_OBJ) $(VGA_OBJ) $(TERMINAL_OBJ) $(SHELL_OBJ) $(KEYBOARD_OBJ) $(INTERRUPT_OBJ) $(IDT_OBJ) $(ISR_OBJ) $(PIC_OBJ) $(TIMER_OBJ) $(KLIB_OBJ)
 
 CFLAGS = -m32 -Iinclude -ffreestanding -fno-builtin -fno-pic -fno-pie -fno-stack-protector -nostdlib -Wall -Wextra
 LDFLAGS = -m elf_i386 -T linker.ld -nostdlib
@@ -47,10 +47,10 @@ $(KERNEL_OBJ): kernel/kernel.c | $(BUILD_DIR)
 $(VGA_OBJ): kernel/vga.c include/vga.h | $(BUILD_DIR)
 >$(CC) $(CFLAGS) -c kernel/vga.c -o $(VGA_OBJ)
 
-$(TERMINAL_OBJ): kernel/terminal.c include/terminal.h include/vga.h | $(BUILD_DIR)
+$(TERMINAL_OBJ): kernel/terminal.c include/terminal.h include/vga.h include/klib.h | $(BUILD_DIR)
 >$(CC) $(CFLAGS) -c kernel/terminal.c -o $(TERMINAL_OBJ)
 
-$(SHELL_OBJ): kernel/shell.c include/shell.h include/terminal.h include/keyboard.h | $(BUILD_DIR)
+$(SHELL_OBJ): kernel/shell.c include/shell.h include/terminal.h include/keyboard.h include/klib.h | $(BUILD_DIR)
 >$(CC) $(CFLAGS) -c kernel/shell.c -o $(SHELL_OBJ)
 
 $(KEYBOARD_OBJ): kernel/keyboard.c include/keyboard.h include/isr.h | $(BUILD_DIR)
@@ -74,6 +74,9 @@ $(PIC_OBJ): kernel/pic.c include/pic.h | $(BUILD_DIR)
 
 $(TIMER_OBJ): kernel/timer.c include/timer.h include/isr.h | $(BUILD_DIR)
 >$(CC) $(CFLAGS) -c kernel/timer.c -o $(TIMER_OBJ)
+
+$(KLIB_OBJ): kernel/klib.c include/klib.h | $(BUILD_DIR)
+>$(CC) $(CFLAGS) -c kernel/klib.c -o $(KLIB_OBJ)
 
 check: $(KERNEL_BIN)
 >grub-file --is-x86-multiboot $(KERNEL_BIN)
