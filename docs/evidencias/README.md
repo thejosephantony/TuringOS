@@ -2,7 +2,7 @@
 
 Esta pasta reúne evidências da validação, depuração e engenharia reversa do TuringOS.
 
-## Imagens
+## Imagens e Videos
 
 - boot e inicialização dos subsistemas;
 - shell e comando help;
